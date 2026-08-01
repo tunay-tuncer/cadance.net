@@ -1,0 +1,118 @@
+.navBar {
+    position: fixed;
+    height: 4rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 4rem;
+    z-index: 10;
+}
+
+.navContainer {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+}
+
+.navContainer a {
+    color: var(--textWhite);
+    font-size: 0.75rem;
+    transition: 0.4s ease;
+}
+
+.navContainer a:hover {
+    color: var(--accent);
+}
+
+.userContainer {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.userDisplay {
+    display: flex;
+    gap: 1rem;
+}
+
+.chevron {
+    transition: transform 0.2s ease-in-out;
+}
+
+.chevron.expanded {
+    transform: rotate(180deg);
+}
+
+.userButton {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: inherit;
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background-color: #141416;
+    border: 1px solid #27272a;
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    min-width: 200px;
+    animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownItem {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #a1a1aa;
+    font-size: 0.75rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dropdownItem:hover {
+    background-color: #1f1f23;
+    color: #f4f4f5;
+}
+
+.dropdownItem.danger:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.signInButton {
+    color: var(--textWhite);
+    font-size: 0.75rem;
+    transition: 0.4s ease;
+}
+
+.signInButton:hover {
+    color: var(--accent);
+}
