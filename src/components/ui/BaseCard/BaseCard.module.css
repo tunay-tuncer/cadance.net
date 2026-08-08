@@ -1,0 +1,53 @@
+/* src/components/ui/BaseCard/BaseCard.module.css */
+.card {
+    position: relative;
+    width: 100%;
+
+    /* Glassmorphism & Zemin Efekti */
+    background: rgba(20, 20, 22, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    /* İnce Lüks Kenarlık */
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+
+    /* Derinlik Gölgesi */
+    box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.37);
+
+    /* Performanslı Yumuşak Geçişler */
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+
+    /* Kart İçi Taşmaları Engelleme */
+    overflow: hidden;
+}
+
+/* Tıklanabilir / Etkileşimli Kartlar İçin Hover Efekti */
+.hoverable {
+    cursor: pointer;
+}
+
+.hoverable:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.5),
+        0 0 20px 0 rgba(59, 130, 246, 0.15);
+    /* Hafif Neon Vurgusu */
+}
+
+/* İsteğe Bağlı: Kart Üstündeki Hafif Işık Yansıması (Subtle Gradient Highlight) */
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.12) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+}

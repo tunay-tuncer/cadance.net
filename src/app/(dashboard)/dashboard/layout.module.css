@@ -1,0 +1,14 @@
+.wrapper {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+}
+
+.mainContent {
+    margin-top: 4rem;
+    height: calc(100% - 4rem);
+    display: flex;
+    flex-direction: column;
+}

@@ -25,6 +25,15 @@
     color: var(--accent);
 }
 
+.currencyContainer {
+    line-height: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    border-inline: 1px solid white;
+    padding-inline: 2rem;
+}
+
 .userContainer {
     font-size: 0.75rem;
     display: flex;
