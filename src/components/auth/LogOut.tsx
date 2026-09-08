@@ -1,6 +1,6 @@
 "use client"
 
-import { logout } from "../../../../lib/fireabase/auth"
+import { logout } from "@/lib/fireabase/auth"
 
 const LogOut = () => {
 

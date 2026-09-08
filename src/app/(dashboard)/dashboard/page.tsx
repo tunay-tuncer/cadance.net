@@ -1,18 +1,10 @@
-//COMPONENTS
-import CalendarCard from "./_components/CalendarCard/CalendarCard";
-import TodoCard from './_components/TodoCard/TodoCard';
-import WeatherCard from './_components/WeatherCard/WeatherCard';
+import DashboardCarousel from "./_components/DashboardCarousel/DashboardCarousel";
+import styles from "./page.module.css";
 
-import layout from "./page.module.css"
-
-const page = () => {
+export default function DashboardPage() {
     return (
-        <div className={layout.datePageContainer}>
-            <CalendarCard />
-            <WeatherCard />
-            <TodoCard />
+        <div className={styles.pageContainer}>
+            <DashboardCarousel />
         </div>
-    )
+    );
 }
-
-export default page

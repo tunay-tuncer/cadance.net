@@ -1,92 +1,127 @@
 .navBar {
     position: fixed;
+    top: 0;
+    left: 0;
     height: 4rem;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-inline: 4rem;
-    z-index: 10;
+    padding-inline: 2.5rem;
+    background: rgba(13, 13, 15, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    z-index: 50;
 }
 
 .navContainer {
     display: flex;
     align-items: center;
-    gap: 3rem;
+    gap: 2rem;
 }
 
 .navContainer a {
-    color: var(--textWhite);
-    font-size: 0.75rem;
-    transition: 0.4s ease;
+    color: #a1a1aa;
+    font-size: 0.775rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 .navContainer a:hover {
-    color: var(--accent);
+    color: #ffffff;
 }
 
+/* Center Finance / Ticker Area */
 .currencyContainer {
-    line-height: 1.5rem;
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    gap: 1.5rem;
     font-size: 0.75rem;
-    border-inline: 1px solid white;
-    padding-inline: 2rem;
+    font-variant-numeric: tabular-nums;
+    color: #71717a;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.4rem 1.25rem;
+    border-radius: 9999px;
 }
 
+.currencyContainer span {
+    color: #d4d4d8;
+    font-weight: 500;
+}
+
+/* User Account & Dropdown Area */
 .userContainer {
-    font-size: 0.75rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.userDisplay {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.userDisplay {
+.userButton {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    color: #f4f4f5;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.userButton:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 .chevron {
-    transition: transform 0.2s ease-in-out;
+    color: #71717a;
+    font-size: 0.875rem;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .chevron.expanded {
     transform: rotate(180deg);
 }
 
-.userButton {
-    background: none;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    color: inherit;
-}
-
 .dropdownMenu {
     position: absolute;
-    top: calc(100% + 0.5rem);
+    top: calc(100% + 0.6rem);
     right: 0;
-    background-color: #141416;
-    border: 1px solid #27272a;
-    border-radius: 8px;
-    padding: 0.5rem;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);
-    z-index: 50;
-    min-width: 200px;
-    animation: fadeIn 0.15s ease-out;
+    background: rgba(18, 18, 20, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 0.4rem;
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.05);
+    z-index: 100;
+    min-width: 190px;
+    animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(-6px);
+        transform: translateY(-4px) scale(0.98);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -94,34 +129,109 @@
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
     padding: 0.5rem 0.75rem;
     background: transparent;
     border: none;
     border-radius: 6px;
     color: #a1a1aa;
-    font-size: 0.75rem;
+    font-size: 0.775rem;
     cursor: pointer;
     text-align: left;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition: all 0.15s ease;
 }
 
 .dropdownItem:hover {
-    background-color: #1f1f23;
+    background-color: rgba(255, 255, 255, 0.06);
     color: #f4f4f5;
 }
 
+.dropdownItem.danger {
+    color: #f87171;
+}
+
 .dropdownItem.danger:hover {
-    background-color: rgba(239, 68, 68, 0.1);
+    background-color: rgba(239, 68, 68, 0.12);
     color: #ef4444;
 }
 
 .signInButton {
-    color: var(--textWhite);
-    font-size: 0.75rem;
-    transition: 0.4s ease;
+    background: var(--accent, #3b82f6);
+    color: #ffffff;
+    border: none;
+    border-radius: 7px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.775rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
 .signInButton:hover {
-    color: var(--accent);
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 960px) {
+    .currencyContainer {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .navBar {
+        padding-inline: 1rem;
+    }
+
+    .navContainer {
+        gap: 0.75rem;
+    }
+
+    .navContainer a {
+        font-size: 0.7rem;
+        letter-spacing: 0.04em;
+    }
+
+    .userDisplay {
+        gap: 0.45rem;
+        min-width: 0;
+    }
+
+    .userButton {
+        max-width: 9.5rem;
+        padding: 0.4rem 0.55rem;
+    }
+
+    .userButton span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .dropdownMenu {
+        max-width: calc(100vw - 2rem);
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 390px) {
+    .navBar {
+        padding-inline: 0.75rem;
+    }
+
+    .navContainer {
+        gap: 0.5rem;
+    }
+
+    .userDisplay > svg {
+        display: none;
+    }
+
+    .userButton {
+        max-width: 7.5rem;
+    }
+
+    .signInButton {
+        padding-inline: 0.65rem;
+    }
 }

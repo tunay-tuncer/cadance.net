@@ -6,6 +6,13 @@
   gap: 1rem;
   align-items: center;
   justify-content: center;
+  padding: 5rem 1.25rem 2rem;
+  text-align: center;
+}
+
+.mainContainer h1 {
+  font-size: clamp(1.75rem, 7vw, 3rem);
+  line-height: 1.15;
 }
 
 .mainContainer span {
@@ -45,4 +52,16 @@
   background: var(--accent);
   color: var(--textWhite);
   scale: 1.05;
+}
+
+@media (max-width: 480px) {
+  .redirectText {
+    max-width: 32ch;
+    line-height: 1.5;
+  }
+
+  .signInDiv {
+    width: min(100%, 18rem);
+    padding-inline: 1.25rem;
+  }
 }

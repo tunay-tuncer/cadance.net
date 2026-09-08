@@ -22,7 +22,6 @@ import { MdDelete, MdEvent, MdCenterFocusStrong, MdLocationOn, MdDoorBack } from
 
 // STYLES
 import styles from "./CalendarCard.module.css";
-import layout from '@/app/(home)/layout';
 
 export interface CalendarEvent {
     id: string | number;

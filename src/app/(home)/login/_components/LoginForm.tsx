@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import styles from "../login.module.css";
 
 export default function LoginForm() {
@@ -8,7 +8,7 @@ export default function LoginForm() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         // Perform authentication logic (e.g., Supabase / NextAuth / Firebase)

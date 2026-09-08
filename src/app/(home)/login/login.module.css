@@ -5,6 +5,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 5rem 1rem 2rem;
 }
 
 .loginCard {
@@ -156,4 +157,23 @@
 .backButton:hover {
     color: var(--accent);
     scale: 1.25;
+}
+
+@media (max-width: 560px) {
+    .loginCard {
+        max-width: 28rem;
+        padding: 1.75rem 1.25rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .backButton {
+        position: static;
+        align-self: flex-start;
+        order: -1;
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+    }
 }
