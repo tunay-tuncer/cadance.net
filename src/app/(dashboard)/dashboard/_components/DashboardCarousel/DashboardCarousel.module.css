@@ -41,6 +41,9 @@
     height: 6px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.15);
+    border: none;
+    padding: 0;
+    cursor: pointer;
     transition: all 0.25s ease;
 }
 
@@ -79,13 +82,28 @@
     color: var(--accent, #3b82f6);
 }
 
-/* VIEWPORT */
+/* VIEWPORT & CONTINUOUS SLIDER */
 .viewport {
     position: relative;
     width: 100%;
     flex: 1;
     min-height: 0;
     overflow: hidden;
+}
+
+.sliderTrack {
+    display: flex;
+    width: 200%;
+    height: 100%;
+    will-change: transform;
+}
+
+.sliderSlide {
+    width: 50%;
+    height: 100%;
+    flex-shrink: 0;
+    min-width: 0;
+    min-height: 0;
 }
 
 /* 1. SAYFA - 5x5 GRID */
@@ -159,39 +177,35 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    color: #a1a1aa;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
 }
 
-.placeholderCard h3 {
-    color: #f4f4f5;
-    font-size: 1rem;
+.placeholderTitle {
+    font-size: 1.1rem;
     font-weight: 600;
+    color: #e4e4e7;
+    margin-bottom: 0.5rem;
 }
 
-.placeholderCard p {
-    font-size: 0.825rem;
+.placeholderText {
+    font-size: 0.85rem;
     color: #71717a;
 }
 
 @media (max-width: 960px) {
-    .carouselContainer {
-        overflow: visible;
-    }
-
-    .viewport {
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-
-    .datePageContainer,
-    .workspacePageContainer {
-        height: auto;
-        min-height: 100%;
+    .datePageContainer {
         grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: none;
-        align-content: start;
-        padding: 0.75rem 1.25rem 1.5rem;
+        grid-template-rows: auto;
+    }
+
+    .workspacePageContainer {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto;
     }
 
     .div1,
@@ -223,7 +237,17 @@
 
     .viewport {
         flex: none;
-        overflow: visible;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .sliderTrack {
+        height: auto;
+        align-items: flex-start;
+    }
+
+    .sliderSlide {
+        height: auto;
     }
 
     .datePageContainer,

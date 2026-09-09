@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import styles from "./DashboardCarousel.module.css";
 import { HiArrowLeft, HiArrowRight } from "react-icons/hi2";
 
@@ -17,34 +17,12 @@ import ShoppingCard from "../ShoppingCard/ShoppingCard";
 
 export default function DashboardCarousel() {
     const [currentPage, setCurrentPage] = useState<number>(0);
-    const [direction, setDirection] = useState<number>(0);
 
-    const paginate = (newDirection: number) => {
-        setDirection(newDirection);
-        setCurrentPage((prev) => prev + newDirection);
-    };
-
-    const slideVariants: Variants = {
-        enter: (dir: number) => ({
-            x: dir > 0 ? "100%" : "-100%",
-            opacity: 0,
-        }),
-        center: {
-            x: 0,
-            opacity: 1,
-            transition: {
-                x: { type: "spring", stiffness: 280, damping: 28 },
-                opacity: { duration: 0.1 },
-            },
-        },
-        exit: (dir: number) => ({
-            x: dir < 0 ? "100%" : "-100%",
-            opacity: 0,
-            transition: {
-                x: { type: "spring", stiffness: 280, damping: 28 },
-                opacity: { duration: 0.1 },
-            },
-        }),
+    const goToPage = (pageIndex: number) => {
+        setCurrentPage(pageIndex);
+        if (typeof window !== "undefined" && window.innerWidth <= 768) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
     };
 
     return (
@@ -56,8 +34,18 @@ export default function DashboardCarousel() {
                         {currentPage === 0 ? "Daily Operations" : "Studio Workspace"}
                     </span>
                     <div className={styles.dotGroup}>
-                        <span className={`${styles.dot} ${currentPage === 0 ? styles.activeDot : ""}`} />
-                        <span className={`${styles.dot} ${currentPage === 1 ? styles.activeDot : ""}`} />
+                        <button
+                            type="button"
+                            className={`${styles.dot} ${currentPage === 0 ? styles.activeDot : ""}`}
+                            onClick={() => goToPage(0)}
+                            aria-label="Daily Operations Sayfasına Git"
+                        />
+                        <button
+                            type="button"
+                            className={`${styles.dot} ${currentPage === 1 ? styles.activeDot : ""}`}
+                            onClick={() => goToPage(1)}
+                            aria-label="Studio Workspace Sayfasına Git"
+                        />
                     </div>
                 </div>
 
@@ -66,7 +54,7 @@ export default function DashboardCarousel() {
                         <button
                             type="button"
                             className={styles.navButton}
-                            onClick={() => paginate(1)}
+                            onClick={() => goToPage(1)}
                             aria-label="Studio Workspace Sayfasına Git"
                         >
                             <span className={styles.btnText}>Studio Workspace</span>
@@ -76,7 +64,7 @@ export default function DashboardCarousel() {
                         <button
                             type="button"
                             className={styles.navButton}
-                            onClick={() => paginate(-1)}
+                            onClick={() => goToPage(0)}
                             aria-label="Daily Operations Sayfasına Dön"
                         >
                             <HiArrowLeft className={styles.navIcon} />
@@ -86,35 +74,36 @@ export default function DashboardCarousel() {
                 </div>
             </div>
 
-            {/* Viewport */}
+            {/* Viewport & Continuous Slider Track */}
             <div className={styles.viewport}>
-                <AnimatePresence initial={false} custom={direction} mode="wait">
-                    {currentPage === 0 ? (
-                        <motion.div
-                            key="page-daily"
-                            custom={direction}
-                            variants={slideVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            className={styles.datePageContainer}
-                        >
-                            {/* Orijinal 5x5 Grid Yerleşimi */}
+                <motion.div
+                    className={styles.sliderTrack}
+                    animate={{ x: currentPage === 0 ? "0%" : "-50%" }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 280,
+                        damping: 28,
+                        mass: 0.8,
+                    }}
+                >
+                    {/* 1. Sayfa: Daily Operations */}
+                    <div
+                        className={styles.sliderSlide}
+                        inert={currentPage !== 0 ? true : undefined}
+                    >
+                        <div className={styles.datePageContainer}>
                             <CalendarCard />
                             <WeatherCard />
                             <TodoCard />
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="page-workspace"
-                            custom={direction}
-                            variants={slideVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            className={styles.workspacePageContainer}
-                        >
-                            {/* 2. Sayfa Grid Yerleşimi */}
+                        </div>
+                    </div>
+
+                    {/* 2. Sayfa: Studio Workspace */}
+                    <div
+                        className={styles.sliderSlide}
+                        inert={currentPage !== 1 ? true : undefined}
+                    >
+                        <div className={styles.workspacePageContainer}>
                             <div className={styles.div1}>
                                 <NotesCard />
                             </div>
@@ -124,9 +113,9 @@ export default function DashboardCarousel() {
                             <div className={styles.div3}>
                                 <ShoppingCard />
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                        </div>
+                    </div>
+                </motion.div>
             </div>
         </div>
     );
