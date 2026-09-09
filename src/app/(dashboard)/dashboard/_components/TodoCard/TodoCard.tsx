@@ -5,6 +5,8 @@ import styles from "./TodoCard.module.css";
 import BaseCard from "@/components/ui/BaseCard/BaseCard";
 import TodoToggleButton from "./TodoToggleButton";
 import { useAuth } from "@/context/AuthContext";
+import { useProjectContext } from "@/context/ProjectContext";
+import { format, parseISO, isSameDay } from "date-fns";
 import {
     TodoItem,
     subscribeToUserTodos,
@@ -16,11 +18,12 @@ import TodoDeleteButton from "./TodoDeleteButton";
 
 const TodoCard = () => {
     const { user } = useAuth();
+    const { selectedDate } = useProjectContext();
     const [toDos, setToDos] = useState<TodoItem[]>([]);
     const [newTaskText, setNewTaskText] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
 
-    // Kullanıcı giriş yaptıysa kendi subcollection'ını dinle
+    // Kullanıcı giriş yaptıysa seçilen tarihe ait todoları dinle
     useEffect(() => {
         if (!user?.uid) {
             setToDos([]);
@@ -28,13 +31,18 @@ const TodoCard = () => {
             return;
         }
 
-        const unsubscribe = subscribeToUserTodos(user.uid, (fetchedTodos) => {
-            setToDos(fetchedTodos);
-            setLoading(false);
-        });
+        setLoading(true);
+        const unsubscribe = subscribeToUserTodos(
+            user.uid,
+            (fetchedTodos) => {
+                setToDos(fetchedTodos);
+                setLoading(false);
+            },
+            selectedDate
+        );
 
         return () => unsubscribe();
-    }, [user?.uid]);
+    }, [user?.uid, selectedDate]);
 
     // Durumu Firestore'da güncelle
     const handleToggle = async (id: string, isFinished: boolean) => {
@@ -53,30 +61,47 @@ const TodoCard = () => {
             setNewTaskText("");
 
             try {
-                await addTodoToUser(user.uid, taskToAdd);
+                await addTodoToUser(user.uid, taskToAdd, selectedDate);
             } catch (error) {
                 console.error("Todo ekleme hatası:", error);
             }
         }
     };
 
-    const handleDelete = async (id: string,) => {
+    const handleDelete = async (id: string) => {
         if (!user?.uid) return;
         try {
-            await deleteUserTodo(user.uid, id)
+            await deleteUserTodo(user.uid, id);
+        } catch (error) {
+            console.error(error);
         }
-        catch (error) {
-            console.error(error)
-        }
-    }
+    };
 
     const unfinishedTodos = toDos.filter((item) => !item.isFinished);
     const finishedTodos = toDos.filter((item) => item.isFinished);
 
+    const formattedDateLabel = (() => {
+        if (!selectedDate) return "";
+        try {
+            const parsed = parseISO(selectedDate);
+            if (isSameDay(parsed, new Date())) {
+                return "Today";
+            }
+            return format(parsed, "EEE, MMM d");
+        } catch {
+            return selectedDate;
+        }
+    })();
+
     return (
         <BaseCard className={styles.todoCardContainer}>
             <div className={styles.headerArea}>
-                <h3 className={styles.sectionTitle}>My Tasks</h3>
+                <div className={styles.titleWrapper}>
+                    <h3 className={styles.sectionTitle}>My Tasks</h3>
+                    {formattedDateLabel && (
+                        <span className={styles.dateLabel}>{formattedDateLabel}</span>
+                    )}
+                </div>
                 <span className={styles.taskCounter}>
                     {loading ? "..." : `${unfinishedTodos.length} remaining`}
                 </span>
@@ -85,7 +110,7 @@ const TodoCard = () => {
             <div className={styles.inputContainer}>
                 <input
                     type="text"
-                    placeholder="Add a new personal task..."
+                    placeholder={user ? "Add a new personal task..." : "Please log in to add tasks"}
                     className={styles.todoInput}
                     value={newTaskText}
                     onChange={(e) => setNewTaskText(e.target.value)}
@@ -140,6 +165,13 @@ const TodoCard = () => {
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                )}
+
+                {/* Empty State */}
+                {unfinishedTodos.length === 0 && finishedTodos.length === 0 && !loading && (
+                    <div className={styles.emptyState}>
+                        <p>No tasks scheduled for this day.</p>
                     </div>
                 )}
             </div>

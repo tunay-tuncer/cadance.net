@@ -27,6 +27,21 @@
     justify-content: space-between;
 }
 
+.titleWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.dateLabel {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--accent, #3b82f6);
+    background: rgba(59, 130, 246, 0.1);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+}
+
 .sectionTitle {
     font-size: 0.95rem;
     font-weight: 600;
@@ -78,6 +93,15 @@
     flex: 1;
     overflow-y: auto;
     min-height: 0;
+}
+
+.emptyState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    color: #71717a;
+    font-size: 0.8125rem;
 }
 
 .groupLabel {

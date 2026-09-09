@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useProjectContext } from '@/context/ProjectContext';
 import BaseCard from '@/components/ui/BaseCard/BaseCard';
 import styles from './WeatherCard.module.css';
-import { format } from 'date-fns';
+import { format, parseISO, isSameDay } from 'date-fns';
 
 import {
     WiDaySunny,
@@ -120,6 +120,19 @@ export default function WeatherCardClient() {
         return <WiDaySunny className={styles.weatherIcon} />;
     };
 
+    const formattedDateString = (() => {
+        if (!selectedDate) return "";
+        try {
+            const parsed = parseISO(selectedDate);
+            if (isSameDay(parsed, new Date())) {
+                return `Today (${format(parsed, 'MMM d')})`;
+            }
+            return format(parsed, 'EEE, MMM d');
+        } catch {
+            return selectedDate;
+        }
+    })();
+
     return (
         <BaseCard className={styles.weatherCardContainer}>
             {/* 1. LEFT MODULE: Location & Status Icon */}
@@ -129,7 +142,7 @@ export default function WeatherCardClient() {
                 </div>
                 <div className={styles.locationInfo}>
                     <span className={styles.city}>İzmir</span>
-                    <span className={styles.country}>{selectedDate}</span>
+                    <span className={styles.country}>{formattedDateString}</span>
                 </div>
             </div>
 

@@ -9,19 +9,22 @@ import {
     onSnapshot,
     serverTimestamp,
 } from "firebase/firestore";
+import { format } from "date-fns";
 import { db } from "./client";
 
 export interface TodoItem {
     id: string;
     task: string;
     isFinished: boolean;
+    date?: string; // 'yyyy-MM-dd'
     createdAt?: any;
 }
 
 // 1. Kullanıcının Kişisel Subcollection'ını Dinle (users/{uid}/todos)
 export const subscribeToUserTodos = (
     userId: string,
-    callback: (todos: TodoItem[]) => void
+    callback: (todos: TodoItem[]) => void,
+    selectedDate?: string
 ) => {
     if (!userId) return () => { };
 
@@ -29,24 +32,46 @@ export const subscribeToUserTodos = (
     const q = query(todosRef, orderBy("createdAt", "desc"));
 
     return onSnapshot(q, (snapshot) => {
-        const todos: TodoItem[] = snapshot.docs.map((docSnap) => ({
-            id: docSnap.id,
-            task: docSnap.data().task,
-            isFinished: docSnap.data().isFinished,
-            createdAt: docSnap.data().createdAt,
-        }));
-        callback(todos);
+        const todos: TodoItem[] = snapshot.docs.map((docSnap) => {
+            const data = docSnap.data();
+            let date = data.date;
+            if (!date && data.createdAt?.toDate) {
+                date = format(data.createdAt.toDate(), "yyyy-MM-dd");
+            }
+            return {
+                id: docSnap.id,
+                task: data.task,
+                isFinished: data.isFinished,
+                date: date,
+                createdAt: data.createdAt,
+            };
+        });
+
+        if (selectedDate) {
+            const todayStr = format(new Date(), "yyyy-MM-dd");
+            const filtered = todos.filter((item) => {
+                if (item.date) {
+                    return item.date === selectedDate;
+                }
+                // Fallback for legacy items without date: match if selectedDate is today
+                return selectedDate === todayStr;
+            });
+            callback(filtered);
+        } else {
+            callback(todos);
+        }
     });
 };
 
 // 2. Kullanıcıya Özel Todo Ekle
-export const addTodoToUser = async (userId: string, task: string) => {
+export const addTodoToUser = async (userId: string, task: string, date?: string) => {
     if (!userId || !task.trim()) return;
 
     const todosRef = collection(db, "users", userId, "todos");
     await addDoc(todosRef, {
         task: task.trim(),
         isFinished: false,
+        date: date || format(new Date(), "yyyy-MM-dd"),
         createdAt: serverTimestamp(),
     });
 };

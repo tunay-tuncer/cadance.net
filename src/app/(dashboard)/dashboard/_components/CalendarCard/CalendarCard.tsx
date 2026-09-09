@@ -1,8 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProjectContext } from '@/context/ProjectContext';
-import BaseCard from '@/components/ui/BaseCard/BaseCard'; // Daha önce tasarladığımız BaseCard
+import { useAuth } from '@/context/AuthContext';
+import BaseCard from '@/components/ui/BaseCard/BaseCard';
+import {
+    CalendarEvent,
+    subscribeToUserEvents,
+    addEventToUser,
+    deleteUserEvent,
+} from '@/lib/fireabase/calendarService';
 import {
     format,
     startOfMonth,
@@ -18,18 +25,10 @@ import {
 
 // REACT ICONS
 import { FaChevronLeft, FaChevronRight, FaSearch } from "react-icons/fa";
-import { MdDelete, MdEvent, MdCenterFocusStrong, MdLocationOn, MdDoorBack } from "react-icons/md";
+import { MdDelete, MdEvent, MdDirectionsRun, MdCall, MdPayment } from "react-icons/md";
 
 // STYLES
 import styles from "./CalendarCard.module.css";
-
-export interface CalendarEvent {
-    id: string | number;
-    title: string;
-    date: string; // 'yyyy-MM-dd'
-    colorId: string;
-    type?: string;
-}
 
 interface EventTypeOption {
     id: string;
@@ -39,16 +38,25 @@ interface EventTypeOption {
 }
 
 export default function CalendarCard() {
+    const { user } = useAuth();
     const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
     const { selectedDate, setSelectedDate } = useProjectContext();
     const [zoomDay, setZoomDay] = useState<Date | null>(null);
     const [newEventTitle, setNewEventTitle] = useState<string>("");
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
 
-    // Geçici demo etkinlikleri (Context/Firebase bağlandığında burası prop veya context'ten gelecek)
-    const [events, setEvents] = useState<CalendarEvent[]>([
-        { id: '1', title: 'Site Measurement', date: format(new Date(), 'yyyy-MM-dd'), colorId: '9' },
-        { id: '2', title: 'Client Concept Review', date: format(new Date(), 'yyyy-MM-dd'), colorId: '7' }
-    ]);
+    useEffect(() => {
+        if (!user?.uid) {
+            setEvents([]);
+            return;
+        }
+
+        const unsubscribe = subscribeToUserEvents(user.uid, (fetchedEvents) => {
+            setEvents(fetchedEvents);
+        });
+
+        return () => unsubscribe();
+    }, [user?.uid]);
 
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(monthStart);
@@ -65,41 +73,66 @@ export default function CalendarCard() {
         setSelectedDate(format(today, 'yyyy-MM-dd'));
     };
 
-    const [eventType, setEventType] = useState<string>("default");
+    const [eventType, setEventType] = useState<string>("standard");
     const [eventColorId, setEventColorId] = useState<string>("9");
 
     const eventTypes: EventTypeOption[] = [
-        { id: "default", label: "Standard Event", icon: <MdEvent size={16} />, colorId: "9" },
-        { id: "focusTime", label: "Focus Time", icon: <MdCenterFocusStrong size={16} />, colorId: "1" },
-        { id: "outOfOffice", label: "Out of Office", icon: <MdDoorBack size={16} />, colorId: "4" },
-        { id: "workingLocation", label: "Working Location", icon: <MdLocationOn size={16} />, colorId: "7" }
+        { id: "standard", label: "Standard Event", icon: <MdEvent size={16} />, colorId: "9" },
+        { id: "toGo", label: "To Go", icon: <MdDirectionsRun size={16} />, colorId: "5" },
+        { id: "call", label: "Call", icon: <MdCall size={16} />, colorId: "2" },
+        { id: "payment", label: "Payment", icon: <MdPayment size={16} />, colorId: "11" }
     ];
 
     const googleColors: Record<string, string> = {
+        "9": "#5484ed", // Blue - Standard Event
+        "5": "#f6bf26", // Yellow - To Go
+        "2": "#22c55e", // Green - Call
+        "11": "#ef4444", // Red - Payment
+        // Backward compatibility
         "1": "#a4bdfc",
-        "4": "#ff887c",
-        "7": "#46d6db",
-        "9": "#5484ed"
+        "4": "#ef4444",
+        "7": "#46d6db"
     };
 
-    const handleAddEvent = (e: React.FormEvent<HTMLFormElement>) => {
+    const getEventTypeIcon = (typeId?: string) => {
+        switch (typeId) {
+            case "toGo":
+                return <MdDirectionsRun size={15} style={{ color: "#f6bf26" }} />;
+            case "call":
+                return <MdCall size={15} style={{ color: "#22c55e" }} />;
+            case "payment":
+                return <MdPayment size={15} style={{ color: "#ef4444" }} />;
+            default:
+                return <MdEvent size={15} style={{ color: "#5484ed" }} />;
+        }
+    };
+
+    const handleAddEvent = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!newEventTitle.trim() || !zoomDay) return;
+        if (!newEventTitle.trim() || !zoomDay || !user?.uid) return;
 
-        const newEvent: CalendarEvent = {
-            id: Date.now().toString(),
-            title: newEventTitle,
-            date: format(zoomDay, 'yyyy-MM-dd'),
-            colorId: eventColorId,
-            type: eventType
-        };
-
-        setEvents(prev => [...prev, newEvent]);
+        const title = newEventTitle.trim();
         setNewEventTitle("");
+
+        try {
+            await addEventToUser(user.uid, {
+                title,
+                date: format(zoomDay, 'yyyy-MM-dd'),
+                colorId: eventColorId,
+                type: eventType,
+            });
+        } catch (error) {
+            console.error("Event ekleme hatası:", error);
+        }
     };
 
-    const handleDeleteEvent = (clickedId: string | number) => {
-        setEvents(prev => prev.filter(e => e.id !== clickedId));
+    const handleDeleteEvent = async (clickedId: string | number) => {
+        if (!user?.uid) return;
+        try {
+            await deleteUserEvent(user.uid, String(clickedId));
+        } catch (error) {
+            console.error("Event silme hatası:", error);
+        }
     };
 
     const handleZoomClick = (e: React.MouseEvent<HTMLButtonElement>, day: Date) => {
@@ -141,7 +174,10 @@ export default function CalendarCard() {
                                                 className={styles.detailEventItem}
                                                 style={{ borderLeft: `3px solid ${googleColors[event.colorId] || '#5484ed'}` }}
                                             >
-                                                <span>{event.title}</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    {getEventTypeIcon(event.type)}
+                                                    <span>{event.title}</span>
+                                                </div>
                                                 <MdDelete
                                                     className={styles.deleteIcon}
                                                     onClick={() => handleDeleteEvent(event.id)}
@@ -156,10 +192,11 @@ export default function CalendarCard() {
                             <h4 className={styles.formTitle}>Add New Event</h4>
                             <input
                                 type="text"
-                                placeholder="Event Title..."
+                                placeholder={user ? "Event Title..." : "Please log in to add events"}
                                 value={newEventTitle}
                                 onChange={(e) => setNewEventTitle(e.target.value)}
                                 className={styles.eventInput}
+                                disabled={!user}
                             />
 
                             <div className={styles.eventTypeButtonGroup}>
@@ -174,16 +211,19 @@ export default function CalendarCard() {
                                                 setEventType(type.id);
                                                 setEventColorId(type.colorId);
                                             }}
+                                            disabled={!user}
                                         >
-                                            {type.icon}
+                                            <span style={{ color: googleColors[type.colorId] || '#5484ed', display: 'flex', alignItems: 'center' }}>
+                                                {type.icon}
+                                            </span>
                                             <span>{type.label}</span>
                                         </button>
                                     );
                                 })}
                             </div>
 
-                            <button type="submit" className={styles.submitEventButton}>
-                                Add Event
+                            <button type="submit" className={styles.submitEventButton} disabled={!user}>
+                                {user ? "Add Event" : "Log in to add"}
                             </button>
                         </form>
                     </div>
@@ -235,7 +275,7 @@ export default function CalendarCard() {
                                         </span>
                                         <button
                                             type="button"
-                                            className={styles.zoomButton}
+                                            className={styles.desktopZoomButton}
                                             onClick={(e) => handleZoomClick(e, day)}
                                             title="View Day Details"
                                         >
@@ -243,10 +283,26 @@ export default function CalendarCard() {
                                         </button>
                                     </div>
 
+                                    {/* Mobile-only Event Indicator: small colored dots showing events exist */}
+                                    <div className={styles.mobileEventIndicator}>
+                                        {dayEvents.slice(0, 3).map((event, i) => (
+                                            <span
+                                                key={event.id || i}
+                                                className={styles.mobileEventDot}
+                                                style={{ backgroundColor: googleColors[event.colorId] || '#5484ed' }}
+                                                title={event.title}
+                                            />
+                                        ))}
+                                        {dayEvents.length > 3 && (
+                                            <span className={styles.mobileEventMore}>+{dayEvents.length - 3}</span>
+                                        )}
+                                    </div>
+
+                                    {/* Desktop Events pills */}
                                     <div className={styles.eventsContainer}>
                                         {dayEvents.slice(0, 2).map((event, i) => (
                                             <div
-                                                key={i}
+                                                key={event.id || i}
                                                 className={styles.eventItem}
                                                 title={event.title}
                                                 style={{ borderLeft: `2px solid ${googleColors[event.colorId] || '#5484ed'}` }}
@@ -258,6 +314,17 @@ export default function CalendarCard() {
                                             <span className={styles.moreEvents}>+{dayEvents.length - 2} more</span>
                                         )}
                                     </div>
+
+                                    {/* Mobile-only Clickable Zoom Button */}
+                                    <button
+                                        type="button"
+                                        className={styles.mobileZoomButton}
+                                        onClick={(e) => handleZoomClick(e, day)}
+                                        aria-label={`View events for ${dayFormatted}`}
+                                        title="View Day Details"
+                                    >
+                                        <FaSearch size={10} />
+                                    </button>
                                 </div>
                             );
                         })}
