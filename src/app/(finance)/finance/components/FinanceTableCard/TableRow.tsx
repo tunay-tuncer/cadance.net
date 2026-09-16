@@ -14,6 +14,7 @@ import {
     MdClose,
     MdTrendingUp,
     MdTrendingDown,
+    MdContentCopy,
 } from "react-icons/md";
 import { FaChevronDown } from "react-icons/fa";
 import CustomDatePicker from "@/components/ui/CustomDatePicker/CustomDatePicker";
@@ -23,10 +24,12 @@ import styles from "./FinanceTableCard.module.css";
 interface TableRowProps {
     item?: FinanceItem;
     isNew?: boolean;
+    isEditingExternal?: boolean;
     onSaveNew?: (record: NewFinanceInput) => Promise<void>;
     onCancelNew?: () => void;
     onUpdate?: (id: string, updates: Partial<NewFinanceInput>) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
+    onDuplicate?: (item: FinanceItem) => Promise<void>;
 }
 
 const formatCurrency = (amount: number): string => {
@@ -37,12 +40,21 @@ const formatCurrency = (amount: number): string => {
 const TableRow: React.FC<TableRowProps> = ({
     item,
     isNew = false,
+    isEditingExternal = false,
     onSaveNew,
     onCancelNew,
     onUpdate,
     onDelete,
+    onDuplicate,
 }) => {
-    const [isEditing, setIsEditing] = useState<boolean>(isNew);
+    const [isEditing, setIsEditing] = useState<boolean>(isNew || isEditingExternal);
+    const [duplicating, setDuplicating] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (isEditingExternal) {
+            setIsEditing(true);
+        }
+    }, [isEditingExternal]);
 
     // Form states
     const [date, setDate] = useState<string>(
@@ -135,6 +147,18 @@ const TableRow: React.FC<TableRowProps> = ({
             setPaymentMethod(item.paymentMethod);
             setStatus(item.status);
             setIsEditing(false);
+        }
+    };
+
+    const handleDuplicate = async () => {
+        if (!item || !onDuplicate || duplicating) return;
+        try {
+            setDuplicating(true);
+            await onDuplicate(item);
+        } catch (error) {
+            console.error("Error duplicating finance row:", error);
+        } finally {
+            setDuplicating(false);
         }
     };
 
@@ -318,9 +342,7 @@ const TableRow: React.FC<TableRowProps> = ({
                             disabled={saving}
                         >
                             <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="Credit Card">Credit Card</option>
                             <option value="Cash">Cash</option>
-                            <option value="EFT">EFT</option>
                         </select>
                         <FaChevronDown className={styles.selectChevron} />
                     </div>
@@ -420,8 +442,8 @@ const TableRow: React.FC<TableRowProps> = ({
                     {item.catagory === "TunaySalary"
                         ? "Tunay Salary"
                         : item.catagory === "GökcanSalary"
-                        ? "Gökcan Salary"
-                        : item.catagory}
+                            ? "Gökcan Salary"
+                            : item.catagory}
                 </span>
             </td>
 
@@ -485,6 +507,16 @@ const TableRow: React.FC<TableRowProps> = ({
                         aria-label="Edit record"
                     >
                         <MdEdit />
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.actionDuplicateBtn}
+                        onClick={handleDuplicate}
+                        disabled={duplicating}
+                        title="Duplicate record"
+                        aria-label="Duplicate record"
+                    >
+                        <MdContentCopy />
                     </button>
                     <button
                         type="button"

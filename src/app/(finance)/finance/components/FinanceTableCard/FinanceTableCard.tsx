@@ -99,6 +99,8 @@ const FinanceTableCard = () => {
         filterCriteria.field && filterCriteria.operator && filterCriteria.value !== ""
     );
 
+    const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
+
     // Handlers
     const handleSaveNewRecord = async (record: NewFinanceInput) => {
         if (!user?.uid) return;
@@ -117,6 +119,9 @@ const FinanceTableCard = () => {
         if (!user?.uid) return;
         try {
             await updateFinanceRecord(user.uid, id, updates);
+            if (editingRecordId === id) {
+                setEditingRecordId(null);
+            }
         } catch (error) {
             console.error("Error updating finance record:", error);
         }
@@ -128,6 +133,30 @@ const FinanceTableCard = () => {
             await deleteFinanceRecord(user.uid, id);
         } catch (error) {
             console.error("Error deleting finance record:", error);
+        }
+    };
+
+    const handleDuplicateRecord = async (item: FinanceItem) => {
+        if (!user?.uid) return;
+        try {
+            const duplicateData: NewFinanceInput = {
+                date: item.date,
+                transactionType: item.transactionType,
+                catagory: item.catagory,
+                explanation: item.explanation,
+                income: item.income,
+                expense: item.expense,
+                paymentMethod: item.paymentMethod,
+                status: item.status,
+                summary: item.summary,
+                projectId: item.projectId || "",
+            };
+            const docRef = await addFinanceRecordToUser(user.uid, duplicateData);
+            if (docRef?.id) {
+                setEditingRecordId(docRef.id);
+            }
+        } catch (error) {
+            console.error("Error duplicating finance record:", error);
         }
     };
 
@@ -227,8 +256,10 @@ const FinanceTableCard = () => {
                             <TableRow
                                 key={item.id}
                                 item={item}
+                                isEditingExternal={editingRecordId === item.id}
                                 onUpdate={handleUpdateRecord}
                                 onDelete={handleDeleteRecord}
+                                onDuplicate={handleDuplicateRecord}
                             />
                         ))}
                     </tbody>
