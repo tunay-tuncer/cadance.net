@@ -13,6 +13,7 @@
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     z-index: 50;
+    box-sizing: border-box;
 }
 
 .navContainer {
@@ -33,6 +34,107 @@
 
 .navContainer a:hover {
     color: #ffffff;
+}
+
+.activeNavLink {
+    color: var(--accent, #3b82f6) !important;
+    font-weight: 600 !important;
+}
+
+/* MOBILE HAMBURGER BUTTON */
+.mobileHamburgerBtn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #f4f4f5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mobileHamburgerBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* MOBILE MENU COLLAPSIBLE DRAWER */
+.mobileMenuDrawer {
+    position: absolute;
+    top: 4rem;
+    left: 0;
+    width: 100%;
+    background: rgba(14, 14, 17, 0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.7);
+    padding: 0.85rem 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    box-sizing: border-box;
+    animation: slideDownMenu 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 49;
+}
+
+@keyframes slideDownMenu {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobileLinksList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.mobileNavLink {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    color: #a1a1aa;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    border: 1px solid transparent;
+}
+
+.mobileNavLink:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    transform: translateX(3px);
+}
+
+.activeMobileLink {
+    background: rgba(59, 130, 246, 0.12);
+    color: #60a5fa !important;
+    border-color: rgba(59, 130, 246, 0.25);
+}
+
+.mobileLinkIcon {
+    color: var(--accent, #3b82f6);
+    flex-shrink: 0;
+}
+
+.mobileCurrencySlot {
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    justify-content: center;
 }
 
 /* Center Finance / Ticker Area */
@@ -118,10 +220,9 @@
         opacity: 0;
         transform: translateY(-4px) scale(0.98);
     }
-
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
@@ -172,24 +273,30 @@
     transform: translateY(-1px);
 }
 
+/* RESPONSIVE BREAKPOINTS */
 @media (max-width: 960px) {
     .currencyContainer {
         display: none;
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .navBar {
-        padding-inline: 1rem;
+        padding-inline: 1.25rem;
     }
 
     .navContainer {
-        gap: 0.75rem;
+        display: none;
     }
 
-    .navContainer a {
-        font-size: 0.7rem;
-        letter-spacing: 0.04em;
+    .mobileHamburgerBtn {
+        display: flex;
+    }
+}
+
+@media (max-width: 640px) {
+    .navBar {
+        padding-inline: 1rem;
     }
 
     .userDisplay {
@@ -217,10 +324,6 @@
 @media (max-width: 390px) {
     .navBar {
         padding-inline: 0.75rem;
-    }
-
-    .navContainer {
-        gap: 0.5rem;
     }
 
     .userDisplay > svg {

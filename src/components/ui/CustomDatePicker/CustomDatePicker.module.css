@@ -1,0 +1,235 @@
+/* CUSTOM DATE PICKER COMPONENT */
+.customDatePickerContainer {
+    position: relative;
+    width: 100%;
+}
+
+.customDateTrigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 0.65rem;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #f4f4f5;
+    font-size: 0.775rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.customDateTrigger:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.customDateTriggerActive {
+    border-color: var(--accent, #3b82f6);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+/* Compact mode for table cells */
+.compactTrigger {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.725rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.compactTrigger .calendarIcon {
+    font-size: 0.8rem;
+}
+
+.compactTrigger .dateTriggerText {
+    font-size: 0.725rem;
+}
+
+.dateTriggerLeft {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.calendarIcon {
+    font-size: 0.95rem;
+    color: var(--accent, #3b82f6);
+    flex-shrink: 0;
+}
+
+.dateTriggerText {
+    color: #e4e4e7;
+    font-weight: 500;
+    font-size: 0.775rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chevronIcon {
+    font-size: 0.65rem;
+    color: #71717a;
+    transition: transform 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 0.25rem;
+}
+
+.chevronOpen {
+    transform: rotate(180deg);
+    color: var(--accent, #3b82f6);
+}
+
+/* CALENDAR DROPDOWN POPOVER */
+.calendarDropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 150;
+    width: 250px;
+    padding: 0.85rem;
+    background: #141418;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    animation: fadeInSlide 0.18s ease;
+    box-sizing: border-box;
+}
+
+.dropdownUpwards {
+    top: auto;
+    bottom: calc(100% + 6px);
+    box-shadow: 0 -16px 36px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pickerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.pickerTitleSection {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.pickerMonthTitle {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: #f4f4f5;
+}
+
+.pickerTodayBtn {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.12rem 0.45rem;
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 4px;
+    color: #60a5fa;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pickerTodayBtn:hover {
+    background: rgba(59, 130, 246, 0.25);
+    color: #ffffff;
+}
+
+.pickerNavButtons {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.pickerNavBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    color: #a1a1aa;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pickerNavBtn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.pickerWeekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: #71717a;
+}
+
+.pickerDaysGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.pickerDayCell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.725rem;
+    font-weight: 500;
+    color: #d4d4d8;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pickerDayCell:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.pickerOtherMonthDay {
+    opacity: 0.25;
+}
+
+.pickerSelectedDay {
+    background: var(--accent, #3b82f6) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    border-color: var(--accent, #3b82f6) !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+.pickerTodayCell {
+    border-color: rgba(59, 130, 246, 0.45);
+    color: #60a5fa;
+    font-weight: 600;
+}
