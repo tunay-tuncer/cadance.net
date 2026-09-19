@@ -41,6 +41,196 @@
     font-weight: 600 !important;
 }
 
+/* INVOICE COLLAPSIBLE DROPDOWN (DESKTOP) */
+.invoiceDropdownWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.navDropdownTrigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0;
+    color: #a1a1aa;
+    font-size: 0.775rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: inherit;
+    transition: color 0.2s ease;
+}
+
+.navDropdownTrigger:hover {
+    color: #ffffff;
+}
+
+.dropdownChevron {
+    font-size: 0.55rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.dropdownChevronOpen {
+    transform: rotate(180deg);
+    color: var(--accent, #3b82f6);
+}
+
+.invoiceDropdownMenu {
+    position: absolute;
+    top: calc(100% + 0.85rem);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    background: rgba(14, 14, 17, 0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.7);
+    padding: 0.45rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 60;
+    animation: fadeInDropdown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -6px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 8px;
+    color: #d4d4d8 !important;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+.dropdownItem:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff !important;
+}
+
+.activeDropdownItem {
+    background: rgba(41, 114, 245, 0.12) !important;
+    border: 1px solid rgba(41, 114, 245, 0.25);
+    color: #60a5fa !important;
+}
+
+.dropdownItemIcon {
+    color: var(--accent, #3b82f6);
+    flex-shrink: 0;
+}
+
+.dropdownItemText {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.dropdownItemTitle {
+    font-size: 0.775rem;
+    font-weight: 600;
+    color: #f4f4f5;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.dropdownItemDesc {
+    font-size: 0.675rem;
+    color: #8a8989;
+    font-weight: 400;
+}
+
+/* MOBILE COLLAPSIBLE */
+.mobileCollapsibleWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.mobileCollapsibleTrigger {
+    background: transparent;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: space-between !important;
+    padding: 0.5rem 0.65rem;
+    border-radius: 8px;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    font-size: 0.775rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    transition: all 0.2s ease;
+}
+
+.mobileCollapsibleTrigger:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+}
+
+.mobileCollapsibleTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.mobileSubLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 1.75rem;
+    margin-top: 0.25rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    margin-left: 1.15rem;
+}
+
+.mobileSubNavLink {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 6px;
+    color: #a1a1aa;
+    font-size: 0.725rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.mobileSubNavLink:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+}
+
+.activeMobileSubLink {
+    background: rgba(41, 114, 245, 0.12) !important;
+    color: #60a5fa !important;
+    font-weight: 600;
+}
+
 /* MOBILE HAMBURGER BUTTON */
 .mobileHamburgerBtn {
     display: none;

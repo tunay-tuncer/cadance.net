@@ -23,6 +23,7 @@ export interface ProjectItem {
     agreedPayment: number;
     totalMoneySpent: number;
     totalMoneyReceived: number;
+    targetProfit?: number;
     isComplete: boolean;
     isBilled: boolean;
     createdAt?: Timestamp | unknown;
@@ -35,6 +36,7 @@ export type NewProjectInput = {
     agreedPayment?: number;
     totalMoneySpent?: number;
     totalMoneyReceived?: number;
+    targetProfit?: number;
     isComplete?: boolean;
     isBilled?: boolean;
 };
@@ -69,6 +71,7 @@ export const subscribeToUserProjects = (
                 agreedPayment: Number(data.agreedPayment) || 0,
                 totalMoneySpent: Number(data.totalMoneySpent) || 0,
                 totalMoneyReceived: Number(data.totalMoneyReceived) || 0,
+                targetProfit: Number(data.targetProfit) || 0,
                 isComplete: Boolean(data.isComplete),
                 isBilled: Boolean(data.isBilled),
                 createdAt: data.createdAt,
@@ -147,6 +150,7 @@ export const updateUserProject = async (
     if (updates.agreedPayment !== undefined) cleanUpdates.agreedPayment = Number(updates.agreedPayment) || 0;
     if (updates.totalMoneySpent !== undefined) cleanUpdates.totalMoneySpent = Number(updates.totalMoneySpent) || 0;
     if (updates.totalMoneyReceived !== undefined) cleanUpdates.totalMoneyReceived = Number(updates.totalMoneyReceived) || 0;
+    if (updates.targetProfit !== undefined) cleanUpdates.targetProfit = Number(updates.targetProfit) || 0;
     if (updates.isComplete !== undefined) cleanUpdates.isComplete = Boolean(updates.isComplete);
     if (updates.isBilled !== undefined) cleanUpdates.isBilled = Boolean(updates.isBilled);
 

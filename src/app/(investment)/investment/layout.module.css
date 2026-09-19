@@ -1,0 +1,33 @@
+.wrapper {
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+}
+
+.mainContent {
+    margin-top: 4rem;
+    height: calc(100% - 4rem);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow: visible;
+    }
+
+    .mainContent {
+        min-height: calc(100dvh - 4rem);
+        height: auto;
+        padding: 1rem;
+    }
+}

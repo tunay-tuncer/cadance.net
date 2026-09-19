@@ -12,6 +12,9 @@ import {
     MdAttachMoney,
     MdWorkOutline,
 } from "react-icons/md";
+import { BsPiggyBank } from "react-icons/bs";
+import { TbInvoice, TbCalculator, TbFileInvoice } from "react-icons/tb";
+import { FaChevronDown } from "react-icons/fa";
 // STYLES
 import styles from "./Navbar.module.css";
 // COMPONENTS
@@ -26,7 +29,21 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
     const { user } = useAuth();
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+    const [isInvoiceDropdownOpen, setIsInvoiceDropdownOpen] = useState<boolean>(false);
+    const [isMobileInvoiceOpen, setIsMobileInvoiceOpen] = useState<boolean>(false);
     const navRef = useRef<HTMLElement>(null);
+    const dropdownTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleMouseEnterInvoice = () => {
+        if (dropdownTimerRef.current) clearTimeout(dropdownTimerRef.current);
+        setIsInvoiceDropdownOpen(true);
+    };
+
+    const handleMouseLeaveInvoice = () => {
+        dropdownTimerRef.current = setTimeout(() => {
+            setIsInvoiceDropdownOpen(false);
+        }, 150);
+    };
 
     // Close mobile menu on pathname change
     useEffect(() => {
@@ -103,6 +120,69 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                         FINANCE
                     </Link>
                 )}
+                {user && (
+                    <Link
+                        href={"/investment"}
+                        className={pathname === "/investment" ? styles.activeNavLink : ""}
+                    >
+                        INVESTMENT
+                    </Link>
+                )}
+                {user && (
+                    <div
+                        className={styles.invoiceDropdownWrapper}
+                        onMouseEnter={handleMouseEnterInvoice}
+                        onMouseLeave={handleMouseLeaveInvoice}
+                    >
+                        <button
+                            type="button"
+                            className={`${styles.navDropdownTrigger} ${
+                                pathname?.startsWith("/invoice") ? styles.activeNavLink : ""
+                            }`}
+                            onClick={() => setIsInvoiceDropdownOpen((prev) => !prev)}
+                            aria-expanded={isInvoiceDropdownOpen}
+                        >
+                            <span>INVOICE</span>
+                            <FaChevronDown
+                                size={9}
+                                className={`${styles.dropdownChevron} ${
+                                    isInvoiceDropdownOpen ? styles.dropdownChevronOpen : ""
+                                }`}
+                            />
+                        </button>
+
+                        {isInvoiceDropdownOpen && (
+                            <div className={styles.invoiceDropdownMenu}>
+                                <Link
+                                    href="/invoice/calculator"
+                                    className={`${styles.dropdownItem} ${
+                                        pathname === "/invoice/calculator" ? styles.activeDropdownItem : ""
+                                    }`}
+                                    onClick={() => setIsInvoiceDropdownOpen(false)}
+                                >
+                                    <TbCalculator size={18} className={styles.dropdownItemIcon} />
+                                    <div className={styles.dropdownItemText}>
+                                        <span className={styles.dropdownItemTitle}>Invoice Calculator</span>
+                                        <span className={styles.dropdownItemDesc}>İş kalemi ve maliyet hesaplayıcı</span>
+                                    </div>
+                                </Link>
+                                <Link
+                                    href="/invoice"
+                                    className={`${styles.dropdownItem} ${
+                                        pathname === "/invoice" ? styles.activeDropdownItem : ""
+                                    }`}
+                                    onClick={() => setIsInvoiceDropdownOpen(false)}
+                                >
+                                    <TbFileInvoice size={18} className={styles.dropdownItemIcon} />
+                                    <div className={styles.dropdownItemText}>
+                                        <span className={styles.dropdownItemTitle}>Invoice Builder</span>
+                                        <span className={styles.dropdownItemDesc}>Canlı PDF teklif & fatura</span>
+                                    </div>
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Render the pre-rendered Server Component slot if user is logged in (desktop) */}
@@ -151,6 +231,63 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                                 <MdAttachMoney size={18} className={styles.mobileLinkIcon} />
                                 <span>FINANCE</span>
                             </Link>
+                        )}
+                        {user && (
+                            <Link
+                                href={"/investment"}
+                                className={`${styles.mobileNavLink} ${pathname === "/investment" ? styles.activeMobileLink : ""}`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                                <BsPiggyBank size={18} className={styles.mobileLinkIcon} />
+                                <span>INVESTMENT</span>
+                            </Link>
+                        )}
+                        {user && (
+                            <div className={styles.mobileCollapsibleWrapper}>
+                                <button
+                                    type="button"
+                                    className={`${styles.mobileNavLink} ${styles.mobileCollapsibleTrigger} ${
+                                        pathname?.startsWith("/invoice") ? styles.activeMobileLink : ""
+                                    }`}
+                                    onClick={() => setIsMobileInvoiceOpen((prev) => !prev)}
+                                >
+                                    <div className={styles.mobileCollapsibleTitle}>
+                                        <TbInvoice size={18} className={styles.mobileLinkIcon} />
+                                        <span>INVOICE</span>
+                                    </div>
+                                    <FaChevronDown
+                                        size={11}
+                                        className={`${styles.dropdownChevron} ${
+                                            isMobileInvoiceOpen ? styles.dropdownChevronOpen : ""
+                                        }`}
+                                    />
+                                </button>
+
+                                {isMobileInvoiceOpen && (
+                                    <div className={styles.mobileSubLinks}>
+                                        <Link
+                                            href="/invoice/calculator"
+                                            className={`${styles.mobileSubNavLink} ${
+                                                pathname === "/invoice/calculator" ? styles.activeMobileSubLink : ""
+                                            }`}
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                        >
+                                            <TbCalculator size={16} />
+                                            <span>Invoice Calculator</span>
+                                        </Link>
+                                        <Link
+                                            href="/invoice"
+                                            className={`${styles.mobileSubNavLink} ${
+                                                pathname === "/invoice" ? styles.activeMobileSubLink : ""
+                                            }`}
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                        >
+                                            <TbFileInvoice size={16} />
+                                            <span>Invoice Builder</span>
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
 
