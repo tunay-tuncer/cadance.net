@@ -120,14 +120,14 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                         FINANCE
                     </Link>
                 )}
-                {user && (
+                {/* {user && (
                     <Link
                         href={"/investment"}
                         className={pathname === "/investment" ? styles.activeNavLink : ""}
                     >
                         INVESTMENT
                     </Link>
-                )}
+                )} */}
                 {user && (
                     <div
                         className={styles.invoiceDropdownWrapper}
@@ -136,18 +136,16 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                     >
                         <button
                             type="button"
-                            className={`${styles.navDropdownTrigger} ${
-                                pathname?.startsWith("/invoice") ? styles.activeNavLink : ""
-                            }`}
+                            className={`${styles.navDropdownTrigger} ${pathname?.startsWith("/invoice") ? styles.activeNavLink : ""
+                                }`}
                             onClick={() => setIsInvoiceDropdownOpen((prev) => !prev)}
                             aria-expanded={isInvoiceDropdownOpen}
                         >
                             <span>INVOICE</span>
                             <FaChevronDown
                                 size={9}
-                                className={`${styles.dropdownChevron} ${
-                                    isInvoiceDropdownOpen ? styles.dropdownChevronOpen : ""
-                                }`}
+                                className={`${styles.dropdownChevron} ${isInvoiceDropdownOpen ? styles.dropdownChevronOpen : ""
+                                    }`}
                             />
                         </button>
 
@@ -155,9 +153,8 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                             <div className={styles.invoiceDropdownMenu}>
                                 <Link
                                     href="/invoice/calculator"
-                                    className={`${styles.dropdownItem} ${
-                                        pathname === "/invoice/calculator" ? styles.activeDropdownItem : ""
-                                    }`}
+                                    className={`${styles.dropdownItem} ${pathname === "/invoice/calculator" ? styles.activeDropdownItem : ""
+                                        }`}
                                     onClick={() => setIsInvoiceDropdownOpen(false)}
                                 >
                                     <TbCalculator size={18} className={styles.dropdownItemIcon} />
@@ -168,9 +165,8 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                                 </Link>
                                 <Link
                                     href="/invoice"
-                                    className={`${styles.dropdownItem} ${
-                                        pathname === "/invoice" ? styles.activeDropdownItem : ""
-                                    }`}
+                                    className={`${styles.dropdownItem} ${pathname === "/invoice" ? styles.activeDropdownItem : ""
+                                        }`}
                                     onClick={() => setIsInvoiceDropdownOpen(false)}
                                 >
                                     <TbFileInvoice size={18} className={styles.dropdownItemIcon} />
@@ -232,7 +228,7 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                                 <span>FINANCE</span>
                             </Link>
                         )}
-                        {user && (
+                        {/* {user && (
                             <Link
                                 href={"/investment"}
                                 className={`${styles.mobileNavLink} ${pathname === "/investment" ? styles.activeMobileLink : ""}`}
@@ -241,14 +237,13 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                                 <BsPiggyBank size={18} className={styles.mobileLinkIcon} />
                                 <span>INVESTMENT</span>
                             </Link>
-                        )}
+                        )} */}
                         {user && (
                             <div className={styles.mobileCollapsibleWrapper}>
                                 <button
                                     type="button"
-                                    className={`${styles.mobileNavLink} ${styles.mobileCollapsibleTrigger} ${
-                                        pathname?.startsWith("/invoice") ? styles.activeMobileLink : ""
-                                    }`}
+                                    className={`${styles.mobileNavLink} ${styles.mobileCollapsibleTrigger} ${pathname?.startsWith("/invoice") ? styles.activeMobileLink : ""
+                                        }`}
                                     onClick={() => setIsMobileInvoiceOpen((prev) => !prev)}
                                 >
                                     <div className={styles.mobileCollapsibleTitle}>
@@ -257,9 +252,8 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                                     </div>
                                     <FaChevronDown
                                         size={11}
-                                        className={`${styles.dropdownChevron} ${
-                                            isMobileInvoiceOpen ? styles.dropdownChevronOpen : ""
-                                        }`}
+                                        className={`${styles.dropdownChevron} ${isMobileInvoiceOpen ? styles.dropdownChevronOpen : ""
+                                            }`}
                                     />
                                 </button>
 
@@ -267,9 +261,8 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                                     <div className={styles.mobileSubLinks}>
                                         <Link
                                             href="/invoice/calculator"
-                                            className={`${styles.mobileSubNavLink} ${
-                                                pathname === "/invoice/calculator" ? styles.activeMobileSubLink : ""
-                                            }`}
+                                            className={`${styles.mobileSubNavLink} ${pathname === "/invoice/calculator" ? styles.activeMobileSubLink : ""
+                                                }`}
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             <TbCalculator size={16} />
@@ -277,9 +270,8 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                                         </Link>
                                         <Link
                                             href="/invoice"
-                                            className={`${styles.mobileSubNavLink} ${
-                                                pathname === "/invoice" ? styles.activeMobileSubLink : ""
-                                            }`}
+                                            className={`${styles.mobileSubNavLink} ${pathname === "/invoice" ? styles.activeMobileSubLink : ""
+                                                }`}
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             <TbFileInvoice size={16} />

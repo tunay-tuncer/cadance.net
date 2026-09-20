@@ -1,14 +1,27 @@
-.invoiceContainer {
+.builderWrapper {
     width: 100%;
     height: 100%;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.invoiceContainer {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 1.25rem;
     box-sizing: border-box;
 }
 
 @media (max-width: 1024px) {
+    .builderWrapper {
+        height: auto;
+        min-height: auto;
+    }
     .invoiceContainer {
         grid-template-columns: 1fr;
         height: auto;

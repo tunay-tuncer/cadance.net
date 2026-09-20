@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
     ProjectItem,
@@ -12,10 +12,15 @@ import {
     InvoiceWorkItem,
     NewWorkItemInput,
     subscribeToProjectWorkItems,
-    addInvoiceWorkItem,
-    updateInvoiceWorkItem,
-    deleteInvoiceWorkItem,
 } from "@/lib/fireabase/invoiceWorkItemService";
+import {
+    ProjectCalculationRecord,
+    subscribeToProjectCalculations,
+    addProjectCalculation,
+    updateProjectCalculation,
+    deleteProjectCalculation,
+} from "@/lib/fireabase/projectCalculationService";
+import { calculateCalculationTotals } from "../../utils/calculatorMath";
 import {
     MdWorkOutline,
     MdFormatListNumbered,
@@ -34,7 +39,7 @@ import {
     MdInfoOutline,
 } from "react-icons/md";
 import { TbCalculator, TbReceiptTax } from "react-icons/tb";
-import CustomProjectDropdown from "./CustomProjectDropdown";
+import CalculatorCalculationBar from "./CalculatorCalculationBar";
 import CustomBillableFilterDropdown from "./CustomBillableFilterDropdown";
 import CustomBillableStatusDropdown from "./CustomBillableStatusDropdown";
 import styles from "./InvoiceCalculatorCard.module.css";
@@ -51,20 +56,29 @@ export default function InvoiceCalculatorCard() {
     const [selectedProjectId, setSelectedProjectId] = useState<string>("");
     const [projectsLoading, setProjectsLoading] = useState<boolean>(true);
 
-    // 2. Target Profit & Tax Mode State (per project)
+    // 2. Calculations (Multiple Calculation Scenarios per Project)
+    const [calculations, setCalculations] = useState<ProjectCalculationRecord[]>([]);
+    const [selectedCalculationId, setSelectedCalculationId] = useState<string | null>(null);
+    const [activeCalculationName, setActiveCalculationName] = useState<string>("");
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+    const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+    const saveSuccessTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // 3. Target Profit & Tax Mode State (for active calculation)
     const [targetProfit, setTargetProfit] = useState<number>(0);
     const [targetProfitInput, setTargetProfitInput] = useState<string>("");
     const [useGrossUp, setUseGrossUp] = useState<boolean>(false);
 
-    // 3. Work Items State
+    // 4. Work Items State (for active calculation)
     const [workItems, setWorkItems] = useState<InvoiceWorkItem[]>([]);
-    const [itemsLoading, setItemsLoading] = useState<boolean>(false);
+    const [legacyWorkItems, setLegacyWorkItems] = useState<InvoiceWorkItem[]>([]);
 
-    // 4. Search & Filter State
+    // 5. Search & Filter State
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [billableFilter, setBillableFilter] = useState<"ALL" | "BILLABLE" | "NON_BILLABLE">("ALL");
 
-    // 5. Inline Add Row State
+    // 6. Inline Add Row State
     const [isAddingRow, setIsAddingRow] = useState<boolean>(false);
     const [newNumber, setNewNumber] = useState<string>("");
     const [newName, setNewName] = useState<string>("");
@@ -72,7 +86,7 @@ export default function InvoiceCalculatorCard() {
     const [newRawCost, setNewRawCost] = useState<string>("");
     const [newCanBeBilled, setNewCanBeBilled] = useState<boolean>(true);
 
-    // 6. Inline Edit Row State
+    // 7. Inline Edit Row State
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
     const [editNumber, setEditNumber] = useState<string>("");
     const [editName, setEditName] = useState<string>("");
@@ -80,7 +94,7 @@ export default function InvoiceCalculatorCard() {
     const [editRawCost, setEditRawCost] = useState<string>("");
     const [editCanBeBilled, setEditCanBeBilled] = useState<boolean>(true);
 
-    // Subscribe to projects
+    // Subscribe to user projects
     useEffect(() => {
         if (!user?.uid) {
             setProjects([]);
@@ -91,7 +105,6 @@ export default function InvoiceCalculatorCard() {
         const unsubscribe = subscribeToUserProjects(user.uid, (fetched) => {
             setProjects(fetched);
             setProjectsLoading(false);
-            // Default select the first project if none selected yet
             if (fetched.length > 0 && !selectedProjectId) {
                 setSelectedProjectId(fetched[0].id);
             }
@@ -100,21 +113,37 @@ export default function InvoiceCalculatorCard() {
         return () => unsubscribe();
     }, [user?.uid, selectedProjectId]);
 
-    // Subscribe to work items for selected project
+    // Subscribe to calculations for selected project
     useEffect(() => {
         if (!user?.uid || !selectedProjectId) {
-            setWorkItems([]);
-            setItemsLoading(false);
+            setCalculations([]);
+            setSelectedCalculationId(null);
             return;
         }
 
-        setItemsLoading(true);
+        const unsubscribe = subscribeToProjectCalculations(
+            user.uid,
+            selectedProjectId,
+            (fetchedCalcs) => {
+                setCalculations(fetchedCalcs);
+            }
+        );
+
+        return () => unsubscribe();
+    }, [user?.uid, selectedProjectId]);
+
+    // Fallback: Subscribe to legacy work items for project if needed
+    useEffect(() => {
+        if (!user?.uid || !selectedProjectId) {
+            setLegacyWorkItems([]);
+            return;
+        }
+
         const unsubscribe = subscribeToProjectWorkItems(
             user.uid,
             selectedProjectId,
             (fetched) => {
-                setWorkItems(fetched);
-                setItemsLoading(false);
+                setLegacyWorkItems(fetched);
             }
         );
 
@@ -125,6 +154,56 @@ export default function InvoiceCalculatorCard() {
     const selectedProject = useMemo(() => {
         return projects.find((p) => p.id === selectedProjectId) || null;
     }, [projects, selectedProjectId]);
+
+    // Project switch & initial calculation load tracker
+    const loadedProjectIdRef = useRef<string>("");
+
+    // Reset loadedProjectIdRef when selectedProjectId changes
+    useEffect(() => {
+        loadedProjectIdRef.current = "";
+    }, [selectedProjectId]);
+
+    // Auto-select latest calculation ONLY when project calculations are first loaded or project changes
+    useEffect(() => {
+        if (!selectedProjectId) return;
+
+        // Only auto-load if we haven't loaded the initial calculation for this project yet
+        if (loadedProjectIdRef.current !== selectedProjectId) {
+            if (calculations.length > 0) {
+                loadedProjectIdRef.current = selectedProjectId;
+                const latest = calculations[0];
+                setSelectedCalculationId(latest.id);
+                setActiveCalculationName(latest.name);
+                setTargetProfit(latest.targetProfit || 0);
+                setTargetProfitInput(latest.targetProfit > 0 ? latest.targetProfit.toLocaleString("tr-TR") : "");
+                setUseGrossUp(Boolean(latest.useGrossUp));
+                setWorkItems(latest.items || []);
+                setHasUnsavedChanges(false);
+            } else if (selectedProject) {
+                // If legacy items exist, load them as "Hesap 1 (Mevcut Kalemler)"
+                if (legacyWorkItems.length > 0) {
+                    loadedProjectIdRef.current = selectedProjectId;
+                    const profit = Number(selectedProject.targetProfit) || 0;
+                    setSelectedCalculationId(null);
+                    setActiveCalculationName(`${selectedProject.name} - Hesap 1`);
+                    setTargetProfit(profit);
+                    setTargetProfitInput(profit > 0 ? profit.toLocaleString("tr-TR") : "");
+                    setUseGrossUp(false);
+                    setWorkItems(legacyWorkItems);
+                    setHasUnsavedChanges(false);
+                } else {
+                    loadedProjectIdRef.current = selectedProjectId;
+                    setSelectedCalculationId(null);
+                    setActiveCalculationName("");
+                    setTargetProfit(0);
+                    setTargetProfitInput("");
+                    setUseGrossUp(false);
+                    setWorkItems([]);
+                    setHasUnsavedChanges(false);
+                }
+            }
+        }
+    }, [selectedProjectId, calculations, selectedProject, legacyWorkItems]);
 
     // Financial Metrics Calculations
     const agreedPayment = selectedProject?.agreedPayment || 0;
@@ -142,21 +221,10 @@ export default function InvoiceCalculatorCard() {
     const isProjectBilled = Boolean(selectedProject?.isBilled);
     const incomeTaxRate = isProjectBilled ? 0.25 : 0;
 
-    // 1. Kâr Gelir Vergisi (Target Profit Tax: 25% on net target profit: e.g. 400.000 TL * 0.25 = 100.000 TL)
     const profitTax = isProjectBilled ? Math.round(targetProfit * incomeTaxRate) : 0;
-
-    // 2. Faturasız Kalem Vergi Telafisi (Non-Billable Cost Tax Liability):
-    // İş faturalı kesildiğinde, faturası temin edilemeyen iş kalemleri (faturasız ustalar vb.) resmi kayıtlarda gider gösterilemez.
-    // Dolayısıyla resmi muhasebede kâr/gelir olarak görünür ve şirket %25 vergi ödemek zorunda kalır.
-    // Hedeflenen net kârın (örn. 400.000 TL) erimemesi için bu vergi yükü teklife eklenmelidir (örn. 500.000 TL * 0.25 = 125.000 TL).
     const nonBillableTaxCompensation = isProjectBilled ? Math.round(nonBillableCost * incomeTaxRate) : 0;
-
-    // 3. Toplam Vergi Yükü
     const totalTaxCompensation = profitTax + nonBillableTaxCompensation;
 
-    // 4. Dağıtılacak Toplam Kâr & Vergi Marjı (Effective Profit):
-    // Standart Telafi: Hedef Kâr + Kâr Vergisi + Faturasız Gider Vergisi (400k + 100k + 125k = 625.000 TL)
-    // Tam Net Koruma (Gross-up / Brütleştirme): (Hedef Kâr + Faturasız Gider Vergisi) / 0.75 = 700.000 TL
     const effectiveProfit = useMemo(() => {
         if (!isProjectBilled) return targetProfit;
         if (targetProfit <= 0 && nonBillableCost <= 0) return 0;
@@ -183,36 +251,13 @@ export default function InvoiceCalculatorCard() {
         });
     }, [workItems, searchQuery, billableFilter]);
 
-    // Synchronize target profit from selected project
-    useEffect(() => {
-        if (selectedProject) {
-            const profit = Number(selectedProject.targetProfit) || 0;
-            setTargetProfit(profit);
-            setTargetProfitInput(profit > 0 ? profit.toLocaleString("tr-TR") : "");
-        } else {
-            setTargetProfit(0);
-            setTargetProfitInput("");
-        }
-    }, [selectedProjectId, selectedProject?.targetProfit]);
-
     // Handle target profit input change
     const handleTargetProfitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const raw = e.target.value;
         setTargetProfitInput(raw);
         const parsed = parseFloat(raw.replace(/[^\d.-]/g, "")) || 0;
         setTargetProfit(parsed >= 0 ? parsed : 0);
-    };
-
-    // Save target profit to project document
-    const handleSaveTargetProfit = async () => {
-        if (!user?.uid || !selectedProjectId) return;
-        try {
-            await updateUserProject(user.uid, selectedProjectId, {
-                targetProfit: targetProfit,
-            });
-        } catch (error) {
-            console.error("Error saving target profit:", error);
-        }
+        setHasUnsavedChanges(true);
     };
 
     // Toggle project billed status
@@ -226,23 +271,15 @@ export default function InvoiceCalculatorCard() {
     };
 
     // Quick percentage presets (e.g. 10%, 20%, 30%, 50% over raw cost)
-    const handleQuickPercent = async (percent: number) => {
+    const handleQuickPercent = (percent: number) => {
         if (totalRawCost <= 0) return;
         const calc = Math.round(totalRawCost * (percent / 100));
         setTargetProfit(calc);
         setTargetProfitInput(calc.toLocaleString("tr-TR"));
-        if (user?.uid && selectedProjectId) {
-            try {
-                await updateUserProject(user.uid, selectedProjectId, {
-                    targetProfit: calc,
-                });
-            } catch (error) {
-                console.error("Error saving target profit:", error);
-            }
-        }
+        setHasUnsavedChanges(true);
     };
 
-    // Calculate proportional profit share for an individual work item (incorporating 25% tax when project is billed)
+    // Calculate proportional profit share for an individual work item
     const getItemProfitMetrics = (itemCost: number) => {
         if (effectiveProfit <= 0) {
             return {
@@ -264,7 +301,6 @@ export default function InvoiceCalculatorCard() {
         const profitPrice = itemCost + share;
         const profitPercent = itemCost > 0 ? ((share / itemCost) * 100).toFixed(0) : "0";
 
-        // Proportional net profit and tax components for transparency
         const netShare = isProjectBilled && effectiveProfit > 0
             ? Math.round(share * (targetProfit / (effectiveProfit || 1)))
             : share;
@@ -290,12 +326,13 @@ export default function InvoiceCalculatorCard() {
         setIsAddingRow(true);
     };
 
-    // Save new work item
-    const handleSaveNewItem = async () => {
-        if (!user?.uid || !selectedProjectId) return;
+    // Save new work item to active calculation
+    const handleSaveNewItem = () => {
         if (!newName.trim()) return;
 
-        const payload: NewWorkItemInput = {
+        const newItem: InvoiceWorkItem = {
+            id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            projectId: selectedProjectId,
             number: newNumber.trim() || String(workItems.length + 1).padStart(2, "0"),
             name: newName.trim(),
             description: newDescription.trim(),
@@ -303,12 +340,9 @@ export default function InvoiceCalculatorCard() {
             canBeBilled: newCanBeBilled,
         };
 
-        try {
-            await addInvoiceWorkItem(user.uid, selectedProjectId, payload);
-            setIsAddingRow(false);
-        } catch (error) {
-            console.error("Error saving work item:", error);
-        }
+        setWorkItems((prev) => [...prev, newItem]);
+        setHasUnsavedChanges(true);
+        setIsAddingRow(false);
     };
 
     // Start editing item
@@ -322,51 +356,231 @@ export default function InvoiceCalculatorCard() {
     };
 
     // Save edited item
-    const handleSaveEdit = async (id: string) => {
-        if (!user?.uid || !selectedProjectId) return;
-        try {
-            await updateInvoiceWorkItem(user.uid, selectedProjectId, id, {
-                number: editNumber.trim(),
-                name: editName.trim(),
-                description: editDescription.trim(),
-                rawCost: parseFloat(editRawCost.replace(/[^\d.-]/g, "")) || 0,
-                canBeBilled: editCanBeBilled,
-            });
-            setEditingItemId(null);
-        } catch (error) {
-            console.error("Error updating work item:", error);
-        }
+    const handleSaveEdit = (id: string) => {
+        setWorkItems((prev) =>
+            prev.map((item) => {
+                if (item.id !== id) return item;
+                return {
+                    ...item,
+                    number: editNumber.trim() || item.number,
+                    name: editName.trim() || item.name,
+                    description: editDescription.trim(),
+                    rawCost: parseFloat(editRawCost.replace(/[^\d.-]/g, "")) || 0,
+                    canBeBilled: editCanBeBilled,
+                };
+            })
+        );
+        setEditingItemId(null);
+        setHasUnsavedChanges(true);
     };
 
     // Duplicate item
-    const handleDuplicate = async (item: InvoiceWorkItem) => {
-        if (!user?.uid || !selectedProjectId) return;
+    const handleDuplicate = (item: InvoiceWorkItem) => {
         const nextNumber = String(workItems.length + 1).padStart(2, "0");
-        try {
-            await addInvoiceWorkItem(user.uid, selectedProjectId, {
-                number: nextNumber,
-                name: `${item.name} (Kopya)`,
-                description: item.description,
-                rawCost: item.rawCost,
-                canBeBilled: item.canBeBilled,
-            });
-        } catch (error) {
-            console.error("Error duplicating work item:", error);
-        }
+        const duplicated: InvoiceWorkItem = {
+            ...item,
+            id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            number: nextNumber,
+            name: `${item.name} (Kopya)`,
+        };
+        setWorkItems((prev) => [...prev, duplicated]);
+        setHasUnsavedChanges(true);
     };
 
     // Delete item
-    const handleDelete = async (id: string) => {
+    const handleDelete = (id: string) => {
+        setWorkItems((prev) => prev.filter((item) => item.id !== id));
+        setHasUnsavedChanges(true);
+    };
+
+    // Calculation Management Handlers
+    const handleSelectCalculation = (calc: ProjectCalculationRecord) => {
+        if (hasUnsavedChanges) {
+            const confirmSwitch = window.confirm(
+                "Mevcut hesapta kaydedilmemiş değişiklikler var. Başka bir hesaba geçmek istediğinize emin misiniz?"
+            );
+            if (!confirmSwitch) return;
+        }
+
+        setSelectedCalculationId(calc.id);
+        setActiveCalculationName(calc.name);
+        setTargetProfit(calc.targetProfit || 0);
+        setTargetProfitInput(calc.targetProfit > 0 ? calc.targetProfit.toLocaleString("tr-TR") : "");
+        setUseGrossUp(Boolean(calc.useGrossUp));
+        setWorkItems(calc.items || []);
+        setHasUnsavedChanges(false);
+    };
+
+    const handleNewBlankCalculation = () => {
+        if (hasUnsavedChanges) {
+            const confirmDiscard = window.confirm(
+                "Mevcut hesapta kaydedilmemiş değişiklikler var. Yeni boş bir hesap başlatmak istediğinize emin misiniz?"
+            );
+            if (!confirmDiscard) return;
+        }
+
+        setSelectedCalculationId(null);
+        setActiveCalculationName("");
+        setWorkItems([]);
+        setTargetProfit(0);
+        setTargetProfitInput("");
+        setUseGrossUp(false);
+        setHasUnsavedChanges(false);
+    };
+
+    const handleSaveCalculation = async () => {
         if (!user?.uid || !selectedProjectId) return;
+
+        setIsSaving(true);
         try {
-            await deleteInvoiceWorkItem(user.uid, selectedProjectId, id);
+            const totals = calculateCalculationTotals(workItems, targetProfit, isProjectBilled, useGrossUp);
+            const calcName = activeCalculationName.trim() || `${selectedProject?.name || "Proje"} - Hesap ${calculations.length + 1}`;
+            setActiveCalculationName(calcName);
+
+            if (selectedCalculationId) {
+                await updateProjectCalculation(user.uid, selectedProjectId, selectedCalculationId, {
+                    name: calcName,
+                    targetProfit,
+                    useGrossUp,
+                    items: workItems,
+                    totalRawCost: totals.totalRawCost,
+                    effectiveProfit: totals.effectiveProfit,
+                    totalOfferedPrice: totals.totalOfferedPrice,
+                    itemCount: workItems.length,
+                });
+            } else {
+                const newId = await addProjectCalculation(user.uid, selectedProjectId, {
+                    projectId: selectedProjectId,
+                    projectName: selectedProject?.name || "",
+                    name: calcName,
+                    targetProfit,
+                    useGrossUp,
+                    items: workItems,
+                    totalRawCost: totals.totalRawCost,
+                    effectiveProfit: totals.effectiveProfit,
+                    totalOfferedPrice: totals.totalOfferedPrice,
+                    itemCount: workItems.length,
+                });
+                if (newId) {
+                    setSelectedCalculationId(newId);
+                }
+            }
+
+            // Also keep project's targetProfit in sync
+            await updateUserProject(user.uid, selectedProjectId, {
+                targetProfit: targetProfit,
+            });
+
+            setHasUnsavedChanges(false);
+            setSaveSuccess(true);
+            if (saveSuccessTimeoutRef.current) clearTimeout(saveSuccessTimeoutRef.current);
+            saveSuccessTimeoutRef.current = setTimeout(() => {
+                setSaveSuccess(false);
+            }, 3000);
         } catch (error) {
-            console.error("Error deleting work item:", error);
+            console.error("Error saving calculation:", error);
+            alert("Hesap kaydedilirken bir hata oluştu.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleSaveAsNewCalculation = async () => {
+        if (!user?.uid || !selectedProjectId) return;
+
+        const defaultNewName = `${activeCalculationName} (Kopya)`;
+        const newName = window.prompt("Yeni hesap için bir isim giriniz:", defaultNewName);
+        if (!newName || !newName.trim()) return;
+
+        setIsSaving(true);
+        try {
+            const totals = calculateCalculationTotals(workItems, targetProfit, isProjectBilled, useGrossUp);
+            const newId = await addProjectCalculation(user.uid, selectedProjectId, {
+                projectId: selectedProjectId,
+                projectName: selectedProject?.name || "",
+                name: newName.trim(),
+                targetProfit,
+                useGrossUp,
+                items: workItems,
+                totalRawCost: totals.totalRawCost,
+                effectiveProfit: totals.effectiveProfit,
+                totalOfferedPrice: totals.totalOfferedPrice,
+                itemCount: workItems.length,
+            });
+
+            if (newId) {
+                setSelectedCalculationId(newId);
+                setActiveCalculationName(newName.trim());
+            }
+
+            setHasUnsavedChanges(false);
+            setSaveSuccess(true);
+            if (saveSuccessTimeoutRef.current) clearTimeout(saveSuccessTimeoutRef.current);
+            saveSuccessTimeoutRef.current = setTimeout(() => {
+                setSaveSuccess(false);
+            }, 3000);
+        } catch (error) {
+            console.error("Error creating duplicate calculation:", error);
+            alert("Yeni hesap kaydedilirken bir hata oluştu.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDeleteCalculation = async (calcId: string, calcName: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!user?.uid || !selectedProjectId) return;
+
+        const confirmDelete = window.confirm(
+            `"${calcName}" hesabını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`
+        );
+        if (!confirmDelete) return;
+
+        try {
+            await deleteProjectCalculation(user.uid, selectedProjectId, calcId);
+            if (selectedCalculationId === calcId) {
+                const remaining = calculations.filter((c) => c.id !== calcId);
+                if (remaining.length > 0) {
+                    handleSelectCalculation(remaining[0]);
+                } else {
+                    handleNewBlankCalculation();
+                }
+            }
+        } catch (error) {
+            console.error("Error deleting calculation:", error);
+            alert("Hesap silinirken bir hata oluştu.");
         }
     };
 
     return (
         <div className={styles.calculatorCard}>
+            {/* TOP MANAGEMENT BAR: PROJECT SELECTION, CALCULATION SELECTOR, NAME & ACTIONS */}
+            <CalculatorCalculationBar
+                projects={projects}
+                selectedProjectId={selectedProjectId}
+                onSelectProject={(id) => {
+                    loadedProjectIdRef.current = "";
+                    setSelectedProjectId(id);
+                    setSelectedCalculationId(null);
+                }}
+                projectsLoading={projectsLoading}
+                calculations={calculations}
+                selectedCalculationId={selectedCalculationId}
+                activeCalculationName={activeCalculationName}
+                onChangeCalculationName={(name) => {
+                    setActiveCalculationName(name);
+                    setHasUnsavedChanges(true);
+                }}
+                onSelectCalculation={handleSelectCalculation}
+                onNewBlank={handleNewBlankCalculation}
+                onDeleteCalculation={handleDeleteCalculation}
+                hasUnsavedChanges={hasUnsavedChanges}
+                isSaving={isSaving}
+                saveSuccess={saveSuccess}
+                onSave={handleSaveCalculation}
+                onSaveAsNew={handleSaveAsNewCalculation}
+            />
+
             {/* HEADER AREA */}
             <div className={styles.headerArea}>
                 <div className={styles.titleWrapper}>
@@ -399,23 +613,9 @@ export default function InvoiceCalculatorCard() {
                 )}
             </div>
 
-            {/* CONTROLS: PROJECT SELECTOR & FILTER */}
+            {/* CONTROLS: FILTER & SEARCH */}
             <div className={styles.controlsBar}>
-                <div className={styles.projectSelectorContainer}>
-                    <span className={styles.controlLabel}>
-                        <MdWorkOutline size={14} />
-                        Proje:
-                    </span>
-                    <CustomProjectDropdown
-                        projects={projects}
-                        selectedProjectId={selectedProjectId}
-                        onChange={(id) => setSelectedProjectId(id)}
-                        disabled={projectsLoading || projects.length === 0}
-                        loading={projectsLoading}
-                    />
-                </div>
-
-                <div className={styles.filterWrapper}>
+                <div className={styles.filterWrapper} style={{ width: "100%" }}>
                     <input
                         type="text"
                         placeholder="İş kalemi ara..."
@@ -445,7 +645,6 @@ export default function InvoiceCalculatorCard() {
                                 type="text"
                                 value={targetProfitInput}
                                 onChange={handleTargetProfitChange}
-                                onBlur={handleSaveTargetProfit}
                                 placeholder="0"
                                 className={styles.profitInput}
                             />

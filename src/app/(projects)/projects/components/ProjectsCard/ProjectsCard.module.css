@@ -562,6 +562,7 @@
 
 /* PROJECT ITEM CARD */
 .projectCardItem {
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -781,8 +782,23 @@
 
 .editFieldsGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.75rem;
+}
+
+@container (max-width: 520px) and (min-width: 380px) {
+    .editFieldsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .editField:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@container (max-width: 379px) {
+    .editFieldsGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 640px) {

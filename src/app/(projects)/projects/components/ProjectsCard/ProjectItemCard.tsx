@@ -12,6 +12,7 @@ import {
 } from "react-icons/md";
 import { ProjectItem, ProjectType } from "@/lib/fireabase/projectService";
 import ProjectTypeDropdown, { getProjectTypeConfig } from "./ProjectTypeDropdown";
+import CustomDatePicker from "@/components/ui/CustomDatePicker/CustomDatePicker";
 import styles from "./ProjectsCard.module.css";
 
 interface ProjectItemCardProps {
@@ -38,6 +39,9 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
     const [isEditing, setIsEditing] = useState(false);
     const [editType, setEditType] = useState<ProjectType>(project.type || "Renovation");
     const [editAgreed, setEditAgreed] = useState(project.agreedPayment.toString());
+    const [editStartDate, setEditStartDate] = useState(
+        project.startDate || format(new Date(), "yyyy-MM-dd")
+    );
 
     const typeConfig = getProjectTypeConfig(project.type);
 
@@ -67,10 +71,20 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
         }
     })();
 
+    const handleToggleEdit = () => {
+        if (!isEditing) {
+            setEditType(project.type || "Renovation");
+            setEditAgreed(project.agreedPayment.toString());
+            setEditStartDate(project.startDate || format(new Date(), "yyyy-MM-dd"));
+        }
+        setIsEditing(!isEditing);
+    };
+
     const handleSaveEdit = async () => {
         await onUpdate(project.id, {
             type: editType,
             agreedPayment: Number(editAgreed) || 0,
+            startDate: editStartDate,
         });
         setIsEditing(false);
     };
@@ -78,6 +92,7 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
     const handleCancelEdit = () => {
         setEditType(project.type || "Renovation");
         setEditAgreed(project.agreedPayment.toString());
+        setEditStartDate(project.startDate || format(new Date(), "yyyy-MM-dd"));
         setIsEditing(false);
     };
 
@@ -139,9 +154,9 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
                         <button
                             type="button"
                             className={styles.editButton}
-                            onClick={() => setIsEditing(!isEditing)}
-                            title="Edit amounts"
-                            aria-label="Edit project amounts"
+                            onClick={handleToggleEdit}
+                            title="Edit project"
+                            aria-label="Edit project"
                         >
                             <MdEdit />
                         </button>
@@ -173,6 +188,10 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
                         <div className={styles.editField}>
                             <label className={styles.editLabel}>Project Type</label>
                             <ProjectTypeDropdown value={editType} onChange={setEditType} />
+                        </div>
+                        <div className={styles.editField}>
+                            <label className={styles.editLabel}>Start Date</label>
+                            <CustomDatePicker value={editStartDate} onChange={setEditStartDate} />
                         </div>
                         <div className={styles.editField}>
                             <label className={styles.editLabel}>Agreed (₺)</label>
