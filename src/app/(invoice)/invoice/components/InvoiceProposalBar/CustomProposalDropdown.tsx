@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { TbFileInvoice, TbTrash, TbPlus, TbCheck } from "react-icons/tb";
 import { ProjectInvoiceRecord } from "@/lib/fireabase/projectInvoiceService";
+import { formatDisplayDate } from "../../types/invoice";
 import styles from "./InvoiceProposalBar.module.css";
 
 interface CustomProposalDropdownProps {
@@ -181,7 +182,7 @@ export default function CustomProposalDropdown({
                                                 </span>
                                                 <span className={styles.metaDot}>•</span>
                                                 <span className={styles.proposalDate}>
-                                                    {inv.data?.issueDate || "Tarih Yok"}
+                                                    {inv.data?.issueDate ? formatDisplayDate(inv.data.issueDate) : "Tarih Yok"}
                                                 </span>
                                                 <span className={styles.metaDot}>•</span>
                                                 <span className={styles.proposalItemsCount}>

@@ -75,3 +75,27 @@ export const calculateTotal = (items: InvoiceItem[]): string => {
     if (!hasValidNumber) return "0,00";
     return sum.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
+
+// Helper to format date strings for display (e.g. "2026-09-23" -> "23.09.2026")
+export const formatDisplayDate = (dateStr?: string): string => {
+    if (!dateStr || !dateStr.trim()) return "—";
+    const trimmed = dateStr.trim();
+    // Already in DD.MM.YYYY format
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(trimmed)) return trimmed;
+    // YYYY-MM-DD or ISO string
+    const ymdMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (ymdMatch) {
+        const [, year, month, day] = ymdMatch;
+        return `${day}.${month}.${year}`;
+    }
+    // Fallback: try parsing with Date
+    const parsed = new Date(trimmed);
+    if (!isNaN(parsed.getTime())) {
+        const day = String(parsed.getDate()).padStart(2, "0");
+        const month = String(parsed.getMonth() + 1).padStart(2, "0");
+        const year = parsed.getFullYear();
+        return `${day}.${month}.${year}`;
+    }
+    return trimmed;
+};
+

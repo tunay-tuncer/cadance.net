@@ -1,5 +1,5 @@
 import { Page, Image, Text, View, Font, Document, StyleSheet } from "@react-pdf/renderer";
-import { InvoiceData, calculateTotal } from "../../types/invoice";
+import { InvoiceData, calculateTotal, formatDisplayDate } from "../../types/invoice";
 
 // Register Noto Sans font for full Unicode & Turkish Lira (₺, U+20BA) character support
 Font.register({
@@ -280,7 +280,7 @@ export const MyDocument = ({ data }: DocumentProps) => {
                             {data.invoiceNumber || "TEK-001"}
                         </Text>
                         <Text style={styles.dateText}>
-                            Teklif Tarihi: {data.issueDate || "—"}
+                            Teklif Tarihi: {formatDisplayDate(data.issueDate)}
                         </Text>
                     </View>
                 </View>
