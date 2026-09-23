@@ -406,7 +406,7 @@ export const MyDocument = ({ data }: DocumentProps) => {
 
                 {/* 7. Footer */}
                 <Text style={styles.footer}>
-                    Cadance Mimarlık San. Tic. A.Ş. • info@cadancestudio.com • www.cadancestudio.com • Tüm hakları saklıdır
+                    Cadance Mimarlık San. Tic. LTD. • info@cadancestudio.com • www.cadancestudio.com • Tüm hakları saklıdır
                 </Text>
             </Page>
         </Document>
