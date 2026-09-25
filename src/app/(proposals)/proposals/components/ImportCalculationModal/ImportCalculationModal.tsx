@@ -84,9 +84,9 @@ export default function ImportCalculationModal({
                             </div>
                             <h3 className={styles.emptyTitle}>Kayıtlı Hesap Bulunamadı</h3>
                             <p className={styles.emptyDesc}>
-                                Bu proje için henüz <strong>Invoice Calculator</strong> sayfasında bir hesap senaryosu oluşturulmamış.
+                                Bu proje için henüz <strong>Proposal Calculator</strong> sayfasında bir hesap senaryosu oluşturulmamış.
                             </p>
-                            <Link href="/invoice/calculator" className={styles.emptyLinkBtn} onClick={onClose}>
+                            <Link href="/proposals/calculator" className={styles.emptyLinkBtn} onClick={onClose}>
                                 <span>Hesaplayıcıya Git ve Hesap Oluştur</span>
                                 <TbArrowRight size={14} />
                             </Link>

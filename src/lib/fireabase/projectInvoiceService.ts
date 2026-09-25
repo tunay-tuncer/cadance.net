@@ -11,7 +11,7 @@ import {
     Timestamp,
 } from "firebase/firestore";
 import { db } from "./client";
-import { InvoiceData } from "@/app/(invoice)/invoice/types/invoice";
+import { InvoiceData } from "@/app/(proposals)/proposals/types/invoice";
 
 export interface ProjectInvoiceRecord {
     id: string;
@@ -51,7 +51,7 @@ export const subscribeToProjectInvoices = (
 ) => {
     if (!userId || !projectId) {
         callback([]);
-        return () => {};
+        return () => { };
     }
 
     const invoicesRef = collection(

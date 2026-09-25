@@ -28,6 +28,7 @@ import {
 import ProjectItemCard from "./ProjectItemCard";
 import CustomDatePicker from "@/components/ui/CustomDatePicker/CustomDatePicker";
 import ProjectTypeDropdown from "./ProjectTypeDropdown";
+import DeleteProjectModal from "./DeleteProjectModal";
 import styles from "./ProjectsCard.module.css";
 
 const ProjectsCard = () => {
@@ -44,6 +45,10 @@ const ProjectsCard = () => {
     const [isBilled, setIsBilled] = useState<boolean>(false);
     const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
     const [submitting, setSubmitting] = useState<boolean>(false);
+
+    // Delete confirmation state
+    const [projectToDelete, setProjectToDelete] = useState<ProjectItem | null>(null);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
     // Real-time Firestore subscriptions
     useEffect(() => {
@@ -165,12 +170,23 @@ const ProjectsCard = () => {
         }
     };
 
-    const handleDeleteProject = async (id: string) => {
+    const handleRequestDelete = (id: string) => {
+        const target = currentProjects.find((p) => p.id === id);
+        if (target) {
+            setProjectToDelete(target);
+        }
+    };
+
+    const handleConfirmDelete = async (id: string) => {
         if (!user?.uid) return;
+        setIsDeleting(true);
         try {
             await deleteUserProject(user.uid, id);
+            setProjectToDelete(null);
         } catch (error) {
             console.error("Error deleting project:", error);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -265,7 +281,7 @@ const ProjectsCard = () => {
                                     />
                                     <span className={styles.switchSlider} />
                                 </div>
-                                <span className={styles.switchTitle}>Mark as Billed / Invoiced</span>
+                                <span className={styles.switchTitle}>Mark as Billed / Proposals</span>
                             </label>
 
                             <button
@@ -304,7 +320,7 @@ const ProjectsCard = () => {
                                     onToggleComplete={handleToggleComplete}
                                     onToggleBilled={handleToggleBilled}
                                     onUpdate={handleUpdateProject}
-                                    onDelete={handleDeleteProject}
+                                    onDelete={handleRequestDelete}
                                 />
                             ))}
                         </ul>
@@ -329,7 +345,7 @@ const ProjectsCard = () => {
                                     onToggleComplete={handleToggleComplete}
                                     onToggleBilled={handleToggleBilled}
                                     onUpdate={handleUpdateProject}
-                                    onDelete={handleDeleteProject}
+                                    onDelete={handleRequestDelete}
                                 />
                             ))}
                         </ul>
@@ -345,6 +361,15 @@ const ProjectsCard = () => {
                     </div>
                 )}
             </div>
+
+            {/* CUSTOM DELETE CONFIRMATION ALERT MODAL */}
+            <DeleteProjectModal
+                isOpen={Boolean(projectToDelete)}
+                project={projectToDelete}
+                onClose={() => !isDeleting && setProjectToDelete(null)}
+                onConfirm={handleConfirmDelete}
+                isDeleting={isDeleting}
+            />
         </BaseCard>
     );
 };

@@ -13,7 +13,7 @@ import {
     MdWorkOutline,
 } from "react-icons/md";
 import { BsPiggyBank } from "react-icons/bs";
-import { TbInvoice, TbCalculator, TbFileInvoice } from "react-icons/tb";
+import { TbCalculator, TbFileInvoice } from "react-icons/tb";
 import { FaChevronDown } from "react-icons/fa";
 // STYLES
 import styles from "./Navbar.module.css";
@@ -29,19 +29,19 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
     const { user } = useAuth();
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-    const [isInvoiceDropdownOpen, setIsInvoiceDropdownOpen] = useState<boolean>(false);
-    const [isMobileInvoiceOpen, setIsMobileInvoiceOpen] = useState<boolean>(false);
+    const [isproposalsDropdownOpen, setIsproposalsDropdownOpen] = useState<boolean>(false);
+    const [isMobileproposalsOpen, setIsMobileproposalsOpen] = useState<boolean>(false);
     const navRef = useRef<HTMLElement>(null);
     const dropdownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const handleMouseEnterInvoice = () => {
+    const handleMouseEnterproposals = () => {
         if (dropdownTimerRef.current) clearTimeout(dropdownTimerRef.current);
-        setIsInvoiceDropdownOpen(true);
+        setIsproposalsDropdownOpen(true);
     };
 
-    const handleMouseLeaveInvoice = () => {
+    const handleMouseLeaveproposals = () => {
         dropdownTimerRef.current = setTimeout(() => {
-            setIsInvoiceDropdownOpen(false);
+            setIsproposalsDropdownOpen(false);
         }, 150);
     };
 
@@ -130,48 +130,48 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                 )} */}
                 {user && (
                     <div
-                        className={styles.invoiceDropdownWrapper}
-                        onMouseEnter={handleMouseEnterInvoice}
-                        onMouseLeave={handleMouseLeaveInvoice}
+                        className={styles.proposalsDropdownWrapper}
+                        onMouseEnter={handleMouseEnterproposals}
+                        onMouseLeave={handleMouseLeaveproposals}
                     >
                         <button
                             type="button"
-                            className={`${styles.navDropdownTrigger} ${pathname?.startsWith("/invoice") ? styles.activeNavLink : ""
+                            className={`${styles.navDropdownTrigger} ${pathname?.startsWith("/proposals") || pathname?.startsWith("/invoice") ? styles.activeNavLink : ""
                                 }`}
-                            onClick={() => setIsInvoiceDropdownOpen((prev) => !prev)}
-                            aria-expanded={isInvoiceDropdownOpen}
+                            onClick={() => setIsproposalsDropdownOpen((prev) => !prev)}
+                            aria-expanded={isproposalsDropdownOpen}
                         >
-                            <span>INVOICE</span>
+                            <span>PROPOSALS</span>
                             <FaChevronDown
                                 size={9}
-                                className={`${styles.dropdownChevron} ${isInvoiceDropdownOpen ? styles.dropdownChevronOpen : ""
+                                className={`${styles.dropdownChevron} ${isproposalsDropdownOpen ? styles.dropdownChevronOpen : ""
                                     }`}
                             />
                         </button>
 
-                        {isInvoiceDropdownOpen && (
-                            <div className={styles.invoiceDropdownMenu}>
+                        {isproposalsDropdownOpen && (
+                            <div className={styles.proposalsDropdownMenu}>
                                 <Link
-                                    href="/invoice/calculator"
-                                    className={`${styles.dropdownItem} ${pathname === "/invoice/calculator" ? styles.activeDropdownItem : ""
+                                    href="/proposals/calculator"
+                                    className={`${styles.dropdownItem} ${pathname === "/proposals/calculator" || pathname === "/invoice/calculator" ? styles.activeDropdownItem : ""
                                         }`}
-                                    onClick={() => setIsInvoiceDropdownOpen(false)}
+                                    onClick={() => setIsproposalsDropdownOpen(false)}
                                 >
                                     <TbCalculator size={18} className={styles.dropdownItemIcon} />
                                     <div className={styles.dropdownItemText}>
-                                        <span className={styles.dropdownItemTitle}>Invoice Calculator</span>
+                                        <span className={styles.dropdownItemTitle}>Proposal Calculator</span>
                                         <span className={styles.dropdownItemDesc}>İş kalemi ve maliyet hesaplayıcı</span>
                                     </div>
                                 </Link>
                                 <Link
-                                    href="/invoice"
-                                    className={`${styles.dropdownItem} ${pathname === "/invoice" ? styles.activeDropdownItem : ""
+                                    href="/proposals"
+                                    className={`${styles.dropdownItem} ${pathname === "/proposals" || pathname === "/invoice" ? styles.activeDropdownItem : ""
                                         }`}
-                                    onClick={() => setIsInvoiceDropdownOpen(false)}
+                                    onClick={() => setIsproposalsDropdownOpen(false)}
                                 >
                                     <TbFileInvoice size={18} className={styles.dropdownItemIcon} />
                                     <div className={styles.dropdownItemText}>
-                                        <span className={styles.dropdownItemTitle}>Invoice Builder</span>
+                                        <span className={styles.dropdownItemTitle}>Proposal Builder</span>
                                         <span className={styles.dropdownItemDesc}>Canlı PDF teklif & fatura</span>
                                     </div>
                                 </Link>
@@ -242,40 +242,40 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                             <div className={styles.mobileCollapsibleWrapper}>
                                 <button
                                     type="button"
-                                    className={`${styles.mobileNavLink} ${styles.mobileCollapsibleTrigger} ${pathname?.startsWith("/invoice") ? styles.activeMobileLink : ""
+                                    className={`${styles.mobileNavLink} ${styles.mobileCollapsibleTrigger} ${pathname?.startsWith("/proposals") || pathname?.startsWith("/invoice") ? styles.activeMobileLink : ""
                                         }`}
-                                    onClick={() => setIsMobileInvoiceOpen((prev) => !prev)}
+                                    onClick={() => setIsMobileproposalsOpen((prev) => !prev)}
                                 >
                                     <div className={styles.mobileCollapsibleTitle}>
-                                        <TbInvoice size={18} className={styles.mobileLinkIcon} />
-                                        <span>INVOICE</span>
+                                        <TbFileInvoice size={18} className={styles.mobileLinkIcon} />
+                                        <span>PROPOSALS</span>
                                     </div>
                                     <FaChevronDown
                                         size={11}
-                                        className={`${styles.dropdownChevron} ${isMobileInvoiceOpen ? styles.dropdownChevronOpen : ""
+                                        className={`${styles.dropdownChevron} ${isMobileproposalsOpen ? styles.dropdownChevronOpen : ""
                                             }`}
                                     />
                                 </button>
 
-                                {isMobileInvoiceOpen && (
+                                {isMobileproposalsOpen && (
                                     <div className={styles.mobileSubLinks}>
                                         <Link
-                                            href="/invoice/calculator"
-                                            className={`${styles.mobileSubNavLink} ${pathname === "/invoice/calculator" ? styles.activeMobileSubLink : ""
+                                            href="/proposals/calculator"
+                                            className={`${styles.mobileSubNavLink} ${pathname === "/proposals/calculator" || pathname === "/invoice/calculator" ? styles.activeMobileSubLink : ""
                                                 }`}
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             <TbCalculator size={16} />
-                                            <span>Invoice Calculator</span>
+                                            <span>Proposal Calculator</span>
                                         </Link>
                                         <Link
-                                            href="/invoice"
-                                            className={`${styles.mobileSubNavLink} ${pathname === "/invoice" ? styles.activeMobileSubLink : ""
+                                            href="/proposals"
+                                            className={`${styles.mobileSubNavLink} ${pathname === "/proposals" || pathname === "/invoice" ? styles.activeMobileSubLink : ""
                                                 }`}
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             <TbFileInvoice size={16} />
-                                            <span>Invoice Builder</span>
+                                            <span>Proposal Builder</span>
                                         </Link>
                                     </div>
                                 )}

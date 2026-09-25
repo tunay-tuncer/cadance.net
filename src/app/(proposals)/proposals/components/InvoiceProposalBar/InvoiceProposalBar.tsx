@@ -157,7 +157,7 @@ export default function InvoiceProposalBar({
                                 type="button"
                                 onClick={onImportFromCalculator}
                                 className={`${styles.btnBase} ${styles.btnImport}`}
-                                title="Bu projenin Invoice Calculator sayfasındaki kârlı kalemlerini forma aktar"
+                                title="Bu projenin Proposal Calculator sayfasındaki kârlı kalemlerini forma aktar"
                             >
                                 <TbFileDownload size={15} />
                                 <span>Hesaplayıcıdan Aktar</span>

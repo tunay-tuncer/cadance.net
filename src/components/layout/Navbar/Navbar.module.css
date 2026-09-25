@@ -41,7 +41,8 @@
     font-weight: 600 !important;
 }
 
-/* INVOICE COLLAPSIBLE DROPDOWN (DESKTOP) */
+/* PROPOSALS COLLAPSIBLE DROPDOWN (DESKTOP) */
+.proposalsDropdownWrapper,
 .invoiceDropdownWrapper {
     position: relative;
     display: flex;
@@ -79,6 +80,7 @@
     color: var(--accent, #3b82f6);
 }
 
+.proposalsDropdownMenu,
 .invoiceDropdownMenu {
     position: absolute;
     top: calc(100% + 0.85rem);

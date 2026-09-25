@@ -233,27 +233,393 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    max-height: 290px;
+    overflow-y: auto;
+    padding-right: 2px;
 }
 
 .detailEventItem {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
     background: rgba(255, 255, 255, 0.04);
     border-radius: 6px;
     font-size: 0.8125rem;
     color: #f4f4f5;
+    transition: background-color 0.15s ease;
 }
 
-.deleteIcon {
+.detailEventItem:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.detailEventTitle {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.itemActions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.actionIconButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: #a1a1aa;
     cursor: pointer;
-    color: #ef4444;
-    transition: transform 0.1s ease;
+    transition: all 0.15s ease;
 }
 
-.deleteIcon:hover {
-    transform: scale(1.15);
+.repeatBtn:hover {
+    background: rgba(168, 85, 247, 0.18);
+    border-color: rgba(168, 85, 247, 0.45);
+    color: #c084fc;
+    transform: scale(1.06);
+}
+
+.editBtn:hover {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: rgba(59, 130, 246, 0.45);
+    color: #60a5fa;
+    transform: scale(1.06);
+}
+
+.deleteBtn:hover {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.45);
+    color: #f87171;
+    transform: scale(1.06);
+}
+
+/* ACTIVE ITEM HIGHLIGHTS */
+.activeItemHighlightEdit {
+    border-color: #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.08) !important;
+}
+
+.activeItemHighlightRepeat {
+    border-color: #a855f7 !important;
+    background: rgba(168, 85, 247, 0.08) !important;
+}
+
+/* RIGHT PANEL CONTAINER */
+.rightPanelContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.panelHeaderRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.panelTitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #e4e4e7;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.cancelModeBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #a1a1aa;
+    font-size: 0.72rem;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 0.25rem 0.6rem;
+    transition: all 0.15s ease;
+}
+
+.cancelModeBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.modeTargetBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.65rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #d4d4d8;
+}
+
+.modeTargetName {
+    font-weight: 600;
+    color: #f4f4f5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* CUSTOM STYLED TOGGLE SWITCH */
+.customSwitchLabel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.45rem 0.65rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.customSwitchLabel:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.switchLeftInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.775rem;
+    color: #d4d4d8;
+    font-weight: 500;
+}
+
+.switchContainer {
+    position: relative;
+    display: inline-block;
+    width: 2.1rem;
+    height: 1.2rem;
+    flex-shrink: 0;
+}
+
+.switchInput {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.switchSlider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.2s ease;
+    border-radius: 20px;
+}
+
+.switchSlider:before {
+    position: absolute;
+    content: "";
+    height: 0.8rem;
+    width: 0.8rem;
+    left: 2px;
+    bottom: 2px;
+    background: #ffffff;
+    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.switchInput:checked + .switchSlider {
+    background: #a855f7;
+    border-color: #a855f7;
+}
+
+.switchInput:checked + .switchSlider:before {
+    transform: translateX(0.9rem);
+}
+
+/* REPEAT PANEL SPECIFIC STYLES */
+.repeatSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.customInputsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.customInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.customInputLabel {
+    font-size: 0.6875rem;
+    color: #a1a1aa;
+    font-weight: 500;
+}
+
+.numberInput {
+    padding: 0.45rem 0.65rem;
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #f4f4f5;
+    font-size: 0.8rem;
+    outline: none;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.numberInput:focus {
+    border-color: #a855f7;
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+}
+
+.previewDatesWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+}
+
+.previewHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #a1a1aa;
+    font-weight: 600;
+}
+
+.previewBadge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.45rem;
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 10px;
+    color: #c084fc;
+    font-weight: 600;
+}
+
+.previewDatesScroll {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    max-height: 75px;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+.previewChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.18rem 0.45rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    font-size: 0.6875rem;
+    color: #d4d4d8;
+}
+
+.previewIndex {
+    color: #c084fc;
+    font-weight: 600;
+    font-size: 0.625rem;
+}
+
+.buttonRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.secondaryBtn {
+    padding: 0.5rem 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #d4d4d8;
+    border-radius: 6px;
+    font-size: 0.775rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.secondaryBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.repeatSubmitBtn {
+    flex: 1;
+    padding: 0.5rem;
+    background: #9333ea;
+    border: 1px solid #a855f7;
+    color: #ffffff;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.775rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.repeatSubmitBtn:hover:not(:disabled) {
+    background: #7e22ce;
+}
+
+.repeatSubmitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.editSubmitBtn {
+    flex: 1;
+    padding: 0.5rem;
+    background: #2563eb;
+    border: 1px solid #3b82f6;
+    color: #ffffff;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.775rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.editSubmitBtn:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.editSubmitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .addEventForm {

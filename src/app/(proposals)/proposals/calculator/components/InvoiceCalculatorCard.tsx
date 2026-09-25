@@ -585,7 +585,7 @@ export default function InvoiceCalculatorCard() {
             <div className={styles.headerArea}>
                 <div className={styles.titleWrapper}>
                     <TbCalculator className={styles.headerIcon} />
-                    <h1 className={styles.sectionTitle}>Invoice Calculator</h1>
+                    <h1 className={styles.sectionTitle}>Proposal Calculator</h1>
                     <span className={styles.itemCountBadge}>
                         {workItems.length} İş Kalemi
                     </span>

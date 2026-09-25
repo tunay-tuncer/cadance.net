@@ -3,7 +3,7 @@ import InvoiceBuilder from "./components/InvoiceBuilder/InvoiceBuilder";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-    title: "Teklif & Fatura | Cadance",
+    title: "Proposals | Cadance",
     description: "Cadance Dashboard Canlı Teklif & Fatura Düzenleyici",
 };
 
