@@ -97,3 +97,17 @@ export const deleteUserTodo = async (userId: string, todoId: string) => {
     const todoDocRef = doc(db, "users", userId, "todos", todoId);
     await deleteDoc(todoDocRef);
 };
+
+// 5. Kullanıcının Todosunun Tarihini Güncelle (Bugüne Taşı / Tarih Güncelle)
+export const updateUserTodoDate = async (
+    userId: string,
+    todoId: string,
+    date: string
+) => {
+    if (!userId || !todoId || !date) return;
+
+    const todoDocRef = doc(db, "users", userId, "todos", todoId);
+    await updateDoc(todoDocRef, {
+        date: date,
+    });
+};

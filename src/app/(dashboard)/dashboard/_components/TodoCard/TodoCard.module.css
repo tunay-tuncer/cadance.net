@@ -134,6 +134,7 @@
     border: 1px solid rgba(255, 255, 255, 0.04);
     border-radius: 8px;
     transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .todoItem:hover {
@@ -145,7 +146,13 @@
     opacity: 0.45;
 }
 
+.doneItem:hover {
+    opacity: 0.75;
+}
+
 .taskText {
+    flex: 1;
+    min-width: 0;
     font-size: 0.8125rem;
     color: #e4e4e7;
     line-height: 1.4;
@@ -175,18 +182,46 @@
     color: var(--accent, #3b82f6);
 }
 
-.deleteButton {
-    position: absolute;
-    right: 1rem;
-    color: var(--bgWhite);
-    transition: 0.4s ease;
+.itemActions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.addTodayButton {
+    font-size: 1.1rem;
+    color: #71717a;
     cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.todoItem:hover .addTodayButton {
+    color: #a1a1aa;
+}
+
+.addTodayButton:hover {
+    color: var(--accent, #3b82f6) !important;
+    transform: translateY(-2px) scale(1.15);
+}
+
+.deleteButton {
+    font-size: 1.15rem;
+    color: #71717a;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.todoItem:hover .deleteButton {
+    color: #a1a1aa;
 }
 
 .deleteButton:hover {
-    color: red;
-    transform: translateY(-3px);
-    scale: 1.1;
+    color: #ef4444 !important;
+    transform: translateY(-2px) scale(1.15);
 }
 
 @media (max-width: 960px) {

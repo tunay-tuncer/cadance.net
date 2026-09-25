@@ -12,8 +12,10 @@ import {
     subscribeToUserTodos,
     addTodoToUser,
     toggleUserTodoStatus,
-    deleteUserTodo
+    deleteUserTodo,
+    updateUserTodoDate,
 } from "../../../../../lib/fireabase/todoService";
+import TodoAddTodayButton from "./TodoAddTodayButton";
 import TodoDeleteButton from "./TodoDeleteButton";
 
 const TodoCard = () => {
@@ -22,6 +24,8 @@ const TodoCard = () => {
     const [toDos, setToDos] = useState<TodoItem[]>([]);
     const [newTaskText, setNewTaskText] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
+
+    const today = format(new Date(), "yyyy-MM-dd");
 
     // Kullanıcı giriş yaptıysa seçilen tarihe ait todoları dinle
     useEffect(() => {
@@ -74,6 +78,15 @@ const TodoCard = () => {
             await deleteUserTodo(user.uid, id);
         } catch (error) {
             console.error(error);
+        }
+    };
+
+    const handleAddToday = async (id: string) => {
+        if (!user?.uid) return;
+        try {
+            await updateUserTodoDate(user.uid, id, today);
+        } catch (error) {
+            console.error("Error moving todo to today:", error);
         }
     };
 
@@ -136,7 +149,18 @@ const TodoCard = () => {
                                     onToggle={() => handleToggle(item.id, item.isFinished)}
                                 />
                                 <span className={styles.taskText}>{item.task}</span>
-                                <TodoDeleteButton id={item.id} onClick={() => handleDelete(item.id)} />
+                                <div className={styles.itemActions}>
+                                    {item.date !== today && (
+                                        <TodoAddTodayButton
+                                            id={item.id}
+                                            onClick={() => handleAddToday(item.id)}
+                                        />
+                                    )}
+                                    <TodoDeleteButton
+                                        id={item.id}
+                                        onClick={() => handleDelete(item.id)}
+                                    />
+                                </div>
                             </li>
                         ))}
                     </ul>
@@ -161,7 +185,18 @@ const TodoCard = () => {
                                     <span className={`${styles.taskText} ${styles.strikeText}`}>
                                         {item.task}
                                     </span>
-                                    <TodoDeleteButton id={item.id} onClick={() => handleDelete(item.id)} />
+                                    <div className={styles.itemActions}>
+                                        {item.date !== today && (
+                                            <TodoAddTodayButton
+                                                id={item.id}
+                                                onClick={() => handleAddToday(item.id)}
+                                            />
+                                        )}
+                                        <TodoDeleteButton
+                                            id={item.id}
+                                            onClick={() => handleDelete(item.id)}
+                                        />
+                                    </div>
                                 </li>
                             ))}
                         </ul>
