@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
     ProjectItem,
@@ -51,6 +52,9 @@ const InvoiceViewer = dynamic(() => import("../invoicePDF/InvoiceViewer"), {
 
 export default function InvoiceBuilder() {
     const { user } = useAuth();
+    const searchParams = useSearchParams();
+    const urlProjectId = searchParams.get("projectId");
+    const urlInvoiceId = searchParams.get("invoiceId");
 
     // 1. Projects State
     const [projects, setProjects] = useState<ProjectItem[]>([]);
@@ -91,8 +95,11 @@ export default function InvoiceBuilder() {
             setProjects(fetchedProjects);
             setProjectsLoading(false);
 
-            // If no project is currently selected, select the first available project
+            // If URL specified a projectId, select that; otherwise fallback
             setSelectedProjectId((prev) => {
+                if (urlProjectId && fetchedProjects.some((p) => p.id === urlProjectId)) {
+                    return urlProjectId;
+                }
                 if (prev && fetchedProjects.some((p) => p.id === prev)) {
                     return prev;
                 }
@@ -101,7 +108,7 @@ export default function InvoiceBuilder() {
         });
 
         return () => unsubscribe();
-    }, [user?.uid]);
+    }, [user?.uid, urlProjectId]);
 
     // Subscribe to Proposals of the Selected Project
     useEffect(() => {
@@ -167,8 +174,30 @@ export default function InvoiceBuilder() {
 
     // Auto-load latest proposal or initialize defaults when project changes
     const previousProjectIdRef = useRef<string>("");
+    const handledUrlInvoiceIdRef = useRef<string | null>(null);
+
     useEffect(() => {
         if (!selectedProjectId) return;
+
+        // If a specific invoiceId is passed in URL query and matching invoice exists in current project
+        if (
+            urlInvoiceId &&
+            invoices.length > 0 &&
+            handledUrlInvoiceIdRef.current !== urlInvoiceId
+        ) {
+            const foundInvoice = invoices.find((inv) => inv.id === urlInvoiceId);
+            if (foundInvoice) {
+                handledUrlInvoiceIdRef.current = urlInvoiceId;
+                previousProjectIdRef.current = selectedProjectId;
+                setSelectedInvoiceId(foundInvoice.id);
+                setActiveProposalName(foundInvoice.name);
+                if (foundInvoice.data) {
+                    setInvoiceData(foundInvoice.data);
+                }
+                setHasUnsavedChanges(false);
+                return;
+            }
+        }
 
         // When switching to a different project
         if (previousProjectIdRef.current !== selectedProjectId) {
@@ -196,7 +225,7 @@ export default function InvoiceBuilder() {
                 setHasUnsavedChanges(false);
             }
         }
-    }, [selectedProjectId, invoices, selectedProject]);
+    }, [selectedProjectId, invoices, selectedProject, urlInvoiceId]);
 
     // Debounce PDF re-render to ensure silky smooth typing in form inputs
     useEffect(() => {

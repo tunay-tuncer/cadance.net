@@ -42,6 +42,7 @@ ul {
 
 ::-webkit-scrollbar {
   width: 0.4rem;
+  height: 0.4rem;
   position: absolute;
   background-color: transparent;
 }

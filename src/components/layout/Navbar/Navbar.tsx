@@ -120,14 +120,7 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                         FINANCE
                     </Link>
                 )}
-                {/* {user && (
-                    <Link
-                        href={"/investment"}
-                        className={pathname === "/investment" ? styles.activeNavLink : ""}
-                    >
-                        INVESTMENT
-                    </Link>
-                )} */}
+
                 {user && (
                     <div
                         className={styles.proposalsDropdownWrapper}

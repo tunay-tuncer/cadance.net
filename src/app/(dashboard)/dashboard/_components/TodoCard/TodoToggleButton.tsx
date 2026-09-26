@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { MdCheckCircle, MdRadioButtonUnchecked } from "react-icons/md";
 import styles from "./TodoCard.module.css";
 

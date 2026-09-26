@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import InvoiceBuilder from "./components/InvoiceBuilder/InvoiceBuilder";
 import styles from "./page.module.css";
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function InvoicePage() {
     return (
         <div className={styles.pageContainer}>
-            <InvoiceBuilder />
+            <Suspense fallback={<div className={styles.loading}>Loading proposals...</div>}>
+                <InvoiceBuilder />
+            </Suspense>
         </div>
     );
 }

@@ -14,6 +14,7 @@ import { ProjectItem, ProjectType } from "@/lib/fireabase/projectService";
 import ProjectTypeDropdown, { getProjectTypeConfig } from "./ProjectTypeDropdown";
 import CustomDatePicker from "@/components/ui/CustomDatePicker/CustomDatePicker";
 import styles from "./ProjectsCard.module.css";
+import Link from "next/link";
 
 interface ProjectItemCardProps {
     project: ProjectItem;
@@ -71,7 +72,9 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
         }
     })();
 
-    const handleToggleEdit = () => {
+    const handleToggleEdit = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (!isEditing) {
             setEditType(project.type || "Renovation");
             setEditAgreed(project.agreedPayment.toString());
@@ -80,7 +83,9 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
         setIsEditing(!isEditing);
     };
 
-    const handleSaveEdit = async () => {
+    const handleSaveEdit = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         await onUpdate(project.id, {
             type: editType,
             agreedPayment: Number(editAgreed) || 0,
@@ -89,7 +94,9 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
         setIsEditing(false);
     };
 
-    const handleCancelEdit = () => {
+    const handleCancelEdit = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         setEditType(project.type || "Renovation");
         setEditAgreed(project.agreedPayment.toString());
         setEditStartDate(project.startDate || format(new Date(), "yyyy-MM-dd"));
@@ -97,14 +104,21 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
     };
 
     return (
-        <li className={`${styles.projectCardItem} ${project.isComplete ? styles.projectComplete : ""}`}>
+        <Link
+            href={`/projects/${project.id}`}
+            className={`${styles.projectCardItem} ${project.isComplete ? styles.projectComplete : ""}`}
+        >
             {/* TOP ROW: isComplete button, Name, Type Badge, Start Date, Percentage, and Actions */}
             <div className={styles.projectTopRow}>
                 <div className={styles.projectIdentity}>
                     <button
                         type="button"
                         className={styles.completeToggleButton}
-                        onClick={() => onToggleComplete(project.id, project.isComplete)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onToggleComplete(project.id, project.isComplete);
+                        }}
                         title={project.isComplete ? "Mark as active" : "Mark as complete"}
                         aria-label="Toggle complete"
                     >
@@ -163,7 +177,11 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
                         <button
                             type="button"
                             className={styles.deleteButton}
-                            onClick={() => onDelete(project.id)}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onDelete(project.id);
+                            }}
                             title="Delete project"
                             aria-label="Delete project"
                         >
@@ -183,7 +201,13 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
 
             {/* QUICK EDIT INLINE DRAWER */}
             {isEditing && (
-                <div className={styles.inlineEditArea}>
+                <div
+                    className={styles.inlineEditArea}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }}
+                >
                     <div className={styles.editFieldsGrid}>
                         <div className={styles.editField}>
                             <label className={styles.editLabel}>Project Type</label>
@@ -271,7 +295,11 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
                     <span className={styles.statLabel}>Billing</span>
                     <button
                         type="button"
-                        onClick={() => onToggleBilled(project.id, project.isBilled)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onToggleBilled(project.id, project.isBilled);
+                        }}
                         className={`${styles.billedBadge} ${project.isBilled ? styles.isBilledTrue : styles.isBilledFalse
                             }`}
                         title="Click to toggle billing status"
@@ -280,7 +308,7 @@ const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
                     </button>
                 </div>
             </div>
-        </li>
+        </Link>
     );
 };
 
