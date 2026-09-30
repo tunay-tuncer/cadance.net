@@ -11,6 +11,7 @@ import {
     MdDashboard,
     MdAttachMoney,
     MdWorkOutline,
+    MdMailOutline,
 } from "react-icons/md";
 import { BsPiggyBank } from "react-icons/bs";
 import { TbCalculator, TbFileInvoice } from "react-icons/tb";
@@ -172,6 +173,15 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                         )}
                     </div>
                 )}
+
+                {user && (
+                    <Link
+                        href={"/mail"}
+                        className={pathname?.startsWith("/mail") ? styles.activeNavLink : ""}
+                    >
+                        EMAILS
+                    </Link>
+                )}
             </div>
 
             {/* Render the pre-rendered Server Component slot if user is logged in (desktop) */}
@@ -273,6 +283,17 @@ const Navbar = ({ currencySlot }: NavbarProps) => {
                                     </div>
                                 )}
                             </div>
+                        )}
+
+                        {user && (
+                            <Link
+                                href={"/mail"}
+                                className={`${styles.mobileNavLink} ${pathname?.startsWith("/mail") ? styles.activeMobileLink : ""}`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                                <MdMailOutline size={18} className={styles.mobileLinkIcon} />
+                                <span>EMAILS</span>
+                            </Link>
                         )}
                     </div>
 

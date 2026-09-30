@@ -1,0 +1,350 @@
+/* MAIL EDITOR CONTAINER & FORM STYLES */
+.editorCard {
+    background: rgba(18, 18, 22, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px -6px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.editorHeader {
+    padding: 1rem 1.25rem 0.75rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.editorTitle {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #f4f4f5;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.editorTitleIcon {
+    color: var(--accent, #2972f5);
+}
+
+.activeTemplateBadge {
+    font-size: 0.625rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    background: rgba(41, 114, 245, 0.15);
+    border: 1px solid rgba(41, 114, 245, 0.3);
+    color: #60a5fa;
+}
+
+/* SCROLLABLE FORM BODY */
+.editorScrollArea {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.15rem 1.25rem 1.75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.editorScrollArea::-webkit-scrollbar {
+    width: 0.35rem;
+}
+
+.editorScrollArea::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 3px;
+}
+
+/* SECTION GROUPS */
+.formSection {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.sectionTitle {
+    font-size: 0.725rem;
+    font-weight: 700;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sectionHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+/* FORM FIELDS */
+.formGrid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+    .formGrid2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    width: 100%;
+}
+
+.fieldLabel {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.fieldInputWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.45rem 0.75rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.fieldInputWrapper:focus-within {
+    border-color: var(--accent, #2972f5);
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 0 0 2px rgba(41, 114, 245, 0.2);
+}
+
+.inputIcon {
+    font-size: 0.85rem;
+    color: var(--accent, #2972f5);
+    flex-shrink: 0;
+}
+
+.fieldInput {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f4f4f5;
+    font-size: 0.775rem;
+    font-family: inherit;
+    width: 100%;
+}
+
+.fieldTextarea {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    color: #f4f4f5;
+    font-size: 0.775rem;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    min-height: 60px;
+    line-height: 1.45;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.fieldTextarea:focus {
+    border-color: var(--accent, #2972f5);
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 0 0 2px rgba(41, 114, 245, 0.2);
+}
+
+.fieldHelp {
+    font-size: 0.65rem;
+    color: #71717a;
+    line-height: 1.3;
+}
+
+/* PRESET IMAGE GRID */
+.heroImagesGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.heroThumbBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    padding: 0;
+    text-align: left;
+}
+
+.heroThumbBtn:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.heroThumbActive {
+    border-color: var(--accent, #2972f5) !important;
+    box-shadow: 0 0 0 2px rgba(41, 114, 245, 0.3);
+}
+
+.thumbImg {
+    width: 100%;
+    height: 52px;
+    object-fit: cover;
+    display: block;
+}
+
+.thumbTitle {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #e4e4e7;
+    padding: 0.35rem 0.45rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* QUICK SEND ACTIONS SECTION */
+.sendOptionsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sendCardOption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    transition: all 0.18s ease;
+}
+
+.sendCardOption:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.sendCardLeft {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sendOptionIconWrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(41, 114, 245, 0.12);
+    border: 1px solid rgba(41, 114, 245, 0.25);
+    color: #60a5fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.sendOptionTexts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.sendOptionTitle {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #f4f4f5;
+}
+
+.sendOptionDesc {
+    font-size: 0.675rem;
+    color: #8a8989;
+}
+
+.btnOptionAction {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.725rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.btnOptionAction:hover {
+    background: var(--accent, #2972f5);
+    border-color: var(--accent, #2972f5);
+}
+
+.statusToast {
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+    font-size: 0.725rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
