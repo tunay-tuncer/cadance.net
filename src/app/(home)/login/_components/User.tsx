@@ -32,7 +32,7 @@ const User = () => {
 
             {user ? (
                 <div className={styles.userDisplay} style={{ position: 'relative' }}>
-                    <FaUser />
+
                     {/* Clickable button trigger */}
                     <button
                         type="button"
@@ -40,6 +40,7 @@ const User = () => {
                         onClick={toggleDropdown}
                         aria-expanded={userExpanded}
                     >
+                        {user.photoURL ? <img src={user.photoURL} alt="user" className={styles.userImage} referrerPolicy="no-referrer" /> : <FaUser />}
                         <span>{user.displayName ?? user.email ?? 'User'}</span>
                         <FaChevronDown
                             className={`${styles.chevron} ${userExpanded ? styles.expanded : ''}`}
